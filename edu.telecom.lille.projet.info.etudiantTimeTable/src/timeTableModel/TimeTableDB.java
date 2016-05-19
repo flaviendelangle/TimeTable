@@ -20,27 +20,18 @@ public class TimeTableDB {
 	/**
 	 * Description of the property timeTables.
 	 */
-	public TimeTable timeTables = null;
+	public HashSet<TimeTable> timeTables = null;
 
 	/**
 	 * Description of the property rooms.
 	 */
-	public HashSet<Room> rooms = new HashSet<Room>();
-
-	/**
-	 * Description of the property rooms.
-	 */
-	public Room rooms = null;
+	public HashSet<Room> rooms = null;
 
 	/**
 	 * Description of the property file.
 	 */
 	private Object file = ;
 
-	/**
-	 * Description of the property timeTables.
-	 */
-	public HashSet<TimeTable> timeTables = new HashSet<TimeTable>();
 
 	// Start of user code (user defined attributes for TimeTableDB)
 
@@ -172,7 +163,7 @@ public class TimeTableDB {
 	 * @param timeTableId 
 	 * @return 
 	 */
-	public Boolean addTimeTable(Integer timeTableId) {
+	public Boolean addTimeTable(int timeTableId) {
 		// Start of user code for method addTimeTable
 		Boolean addTimeTable = Boolean.FALSE;
 		return addTimeTable;
@@ -184,7 +175,7 @@ public class TimeTableDB {
 	 * @param timeTableId 
 	 * @return 
 	 */
-	public Boolean removeTimeTable(Integer timeTableId) {
+	public Boolean removeTimeTable(int timeTableId) {
 		// Start of user code for method removeTimeTable
 		Boolean removeTimeTable = Boolean.FALSE;
 		return removeTimeTable;
@@ -201,7 +192,7 @@ public class TimeTableDB {
 	 * @param roomId 
 	 * @return 
 	 */
-	public Boolean addBooking(Integer timeTableId, Integer bookingId, String login, Date dateBegin, Date dateEnd,
+	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd,
 			Integer roomId) {
 		// Start of user code for method addBooking
 		Boolean addBooking = Boolean.FALSE;
@@ -245,22 +236,20 @@ public class TimeTableDB {
 		// End of user code
 	}
 
-	// Start of user code (user defined methods for TimeTableDB)
-
-	// End of user code
 	/**
 	 * Returns timeTables.
 	 * @return timeTables 
 	 */
-	public TimeTable getTimeTables() {
+	public HashSet<TimeTable> getTimeTables() {
 		return this.timeTables;
 	}
 
+	
 	/**
 	 * Sets a value to attribute timeTables. 
 	 * @param newTimeTables 
 	 */
-	public void setTimeTables(TimeTable newTimeTables) {
+	public void setTimeTables(HashSet<TimeTable> newTimeTables) {
 		this.timeTables = newTimeTables;
 	}
 
@@ -273,18 +262,10 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Returns rooms.
-	 * @return rooms 
-	 */
-	public Room getRooms() {
-		return this.rooms;
-	}
-
-	/**
 	 * Sets a value to attribute rooms. 
 	 * @param newRooms 
 	 */
-	public void setRooms(Room newRooms) {
+	public void setRooms(HashSet<Room> newRooms) {
 		this.rooms = newRooms;
 	}
 
@@ -304,12 +285,5 @@ public class TimeTableDB {
 		this.file = newFile;
 	}
 
-	/**
-	 * Returns timeTables.
-	 * @return timeTables 
-	 */
-	public HashSet<TimeTable> getTimeTables() {
-		return this.timeTables;
-	}
 
 }

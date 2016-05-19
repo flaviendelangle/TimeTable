@@ -37,7 +37,7 @@ public class Reservation {
 	/**
 	 * Description of the property rooms.
 	 */
-	public Room rooms = null;
+	public Room room = null;
 
 	// Start of user code (user defined attributes for Reservation)
 
@@ -134,19 +134,16 @@ public class Reservation {
 	 * Returns rooms.
 	 * @return rooms 
 	 */
-	public Room getRooms() {
-		return this.rooms;
+	public Room getRoom() {
+		return this.room;
 	}
 
 	/**
 	 * Sets a value to attribute rooms. 
 	 * @param newRooms 
 	 */
-	public void setRooms(Room newRooms) {
-		if (this.rooms != null) {
-			this.rooms.set(null);
-		}
-		this.rooms.set(this);
+	public void setRoom(Room newRoom) {
+		this.room = newRoom;
 	}
 
 }
