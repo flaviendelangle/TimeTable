@@ -3,8 +3,11 @@
  *******************************************************************************/
 package timeTableModel;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 // Start of user code (user defined imports)
+
+import org.jdom2.Element;
 
 // End of user code
 
@@ -144,6 +147,35 @@ public class Reservation {
 	 */
 	public void setRoom(Room newRoom) {
 		this.room = newRoom;
+	}
+
+	/**
+	 * Return the XML representation of the reservation
+	 * @return roomXML 
+	 */
+	public Element toXML() {
+		SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		
+		Element reservationXML = new Element("Reservation");
+		Element roomId = new Element("roomId");
+		Element bookId = new Element("bookId");
+		Element dateBegin = new Element("dateBegin");
+		Element dateEnd = new Element("dateEnd");
+		Element teacherLogin = new Element("teacherLogin");
+		
+		roomId.setText(String.valueOf(this.room.getRoomId()));
+		bookId.setText(String.valueOf(this.bookId));
+		dateBegin.setText(dateformat.format(this.dateBegin));
+		dateEnd.setText(dateformat.format(this.dateEnd));
+		teacherLogin.setText(this.teacherLogin);
+		
+		reservationXML.addContent(roomId);
+		reservationXML.addContent(bookId);
+		reservationXML.addContent(dateBegin);
+		reservationXML.addContent(dateEnd);
+		reservationXML.addContent(teacherLogin);
+		
+		return reservationXML;
 	}
 
 }
