@@ -5,6 +5,9 @@ package timeTableModel;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import timeTableModel.Room;
 import timeTableModel.TimeTable;
 // Start of user code (user defined imports)
@@ -20,6 +23,9 @@ public class TimeTableDB {
 	/**
 	 * Description of the property timeTables.
 	 */
+	private Map<Integer, String> mapRooms; //contient toutes les rooms (Id + capacity)
+	private Map<Integer, String> mapTimeTable; //contient tous les timetables (Id + reservations)
+	
 	public HashSet<TimeTable> timeTables = null;
 
 	/**
@@ -68,7 +74,7 @@ public class TimeTableDB {
 	 * @param bookId 
 	 * @return 
 	 */
-	public String getTeacherLogin(Integer timeTableId, Integer bookId) {
+	public String getTeacherLogin(int timeTableId, int bookId) {
 		// Start of user code for method getTeacherLogin
 		String getTeacherLogin = "";
 		return getTeacherLogin;
@@ -78,11 +84,15 @@ public class TimeTableDB {
 	/**
 	 * Description of the method roomsIdToString.
 	 * @return 
+	 * @return 
 	 */
-	public HashSet<String> roomsIdToString() {
+	public String[] roomsIdToString() {
 		// Start of user code for method roomsIdToString
-		HashSet<String> roomsIdToString = new HashSet<String>();
-		return roomsIdToString;
+		Set<Integer> roomsIdToString;
+		
+		roomsIdToString = mapRooms.keySet(); 
+		
+		return roomsIdToString.toArray(new String[roomsIdToString.size()]);
 		// End of user code
 	}
 

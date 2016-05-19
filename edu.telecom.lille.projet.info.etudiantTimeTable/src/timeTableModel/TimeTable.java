@@ -3,10 +3,6 @@
  *******************************************************************************/
 package timeTableModel;
 
-import java.util.Map;
-
-import org.jdom2.Element;
-
 // Start of user code (user defined imports)
 
 // End of user code
@@ -18,15 +14,9 @@ import org.jdom2.Element;
  */
 public class TimeTable {
 	/**
-	 * Id of the current timetable
+	 * Description of the property groupId.
 	 */
-	private int timeTableId = 0;
-
-	/**
-	 * Map interface containing all the rooms related to the timetable
-	 */
-	private Map<Integer,Room> rooms;
-	
+	private Object groupId = ;
 	
 	// Start of user code (user defined attributes for TimeTable)
 	
@@ -48,39 +38,16 @@ public class TimeTable {
 	 * Returns groupId.
 	 * @return groupId 
 	 */
-	public Object getTimeTableId() {
-		return this.timeTableId;
+	public Object getGroupId() {
+		return this.groupId;
 	}
 
 	/**
 	 * Sets a value to attribute groupId. 
 	 * @param newGroupId 
 	 */
-	public void setTimeTableId(int newTimeTableId) {
-		this.timeTableId = newTimeTableId;
+	public void setGroupId(Object newGroupId) {
+		this.groupId = newGroupId;
 	}
-
-	/**
-	 * Return the XML representation of the timetable
-	 * @return roomXML 
-	 */
-	public Element toXML() {
-		Element timeTableXML = new Element("TimeTable");
-		Element timeTableId = new Element("timeTableId");
-		Element Rooms = new Element("Rooms");
-		
-		timeTableId.setText(String.valueOf(this.timeTableId));
-		timeTableXML.addContent(timeTableId);
-		
-		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
-			Element roomId = new Element("roomId");
-			roomId.setText(String.valueOf(entry.getKey()));
-			Rooms.addContent(roomId);
-		}
-		timeTableXML.addContent(Rooms);
-		
-		return timeTableXML;
-	}
-
 
 }
