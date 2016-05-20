@@ -23,15 +23,14 @@ public class TimeTableDB {
 	/**
 	 * Description of the property timeTables.
 	 */
-	private Map<Integer, String> mapRooms; //contient toutes les rooms (Id + capacity)
-	private Map<Integer, String> mapTimeTable; //contient tous les timetables (Id + reservations)
+	private Map<Integer, Room> rooms; //contient toutes les rooms (Id + capacity)
+	private Map<Integer, TimeTable> timeTables; //contient tous les timetables (Id + reservations)
 	
-	public HashSet<TimeTable> timeTables = null;
 
 	/**
 	 * Description of the property rooms.
 	 */
-	public HashSet<Room> rooms = null;
+	//public HashSet<Room> rooms = null;
 
 	/**
 	 * Description of the property file.
@@ -83,51 +82,53 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method roomsIdToString.
-	 * @return 
-	 * @return 
+	 * @return String array (content : ID of the rooms)
 	 */
 	public String[] roomsIdToString() {
-		// Start of user code for method roomsIdToString
 		Set<Integer> roomsIdToString;
 		
-		roomsIdToString = mapRooms.keySet(); 
+		roomsIdToString = rooms.keySet(); // les clés sont les ID : on les récupère dans une liste
 		
-		return roomsIdToString.toArray(new String[roomsIdToString.size()]);
-		// End of user code
+		return roomsIdToString.toArray(new String[roomsIdToString.size()]); //on transforme la liste en tableau
 	}
 
 	/**
 	 * Description of the method roomsToString.
-	 * @return 
+	 * @return String array (content : ID of the rooms + capacity)
 	 */
-	public HashSet<String> roomsToString() {
-		// Start of user code for method roomsToString
-		HashSet<String> roomsToString = new HashSet<String>();
-		return roomsToString;
-		// End of user code
+	public String[] roomsToString() {
+		
+		for (Map.Entry<Integer, Room> entry : rooms.entrySet())
+			{
+			entry.getValue();
+			}
+		
+		return entry.toString(); // toString() à définir dans classe Room pour retourner un String "ID + capa"
 	}
 
 	/**
 	 * Description of the method timeTablesIDToString.
-	 * @return 
+	 * @return String array (content : ID of the timeTable)
 	 */
-	public HashSet<String> timeTablesIDToString() {
-		// Start of user code for method timeTablesIDToString
-		HashSet<String> timeTablesIDToString = new HashSet<String>();
-		return timeTablesIDToString;
-		// End of user code
+	public String[] timeTablesIDToString() {
+		Set<Integer> timeTableIdToString;
+		
+		timeTableIdToString = rooms.keySet(); 
+		
+		return timeTableIdToString.toArray(new String[timeTableIdToString.size()]); //on transforme la liste en tableau
 	}
 
 	/**
 	 * Description of the method booksIdToString.
 	 * @param timeTableId 
-	 * @return 
+	 * @return String array
 	 */
-	public HashSet<String> booksIdToString(Integer timeTableId) {
-		// Start of user code for method booksIdToString
-		HashSet<String> booksIdToString = new HashSet<String>();
+	public String[] booksIdToString(Integer timeTableId) {
+		//1) récupérer le timetable correspondant à l'ID
+		//2) utiliser une fonction getBooksId à définir dans timeTable qui parcourt la map reservations pour récupérer les booksID
+		String[] booksIdToString ;
 		return booksIdToString;
-		// End of user code
+
 	}
 
 	/**
