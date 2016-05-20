@@ -3,6 +3,11 @@
  *******************************************************************************/
 package timeTableModel;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.jdom2.Element;
 
 // Start of user code (user defined imports)
@@ -32,10 +37,9 @@ public class Room {
 	/**
 	 * The constructor.
 	 */
-	public Room() {
-		// Start of user code constructor for Room)
-		super();
-		// End of user code
+	public Room(int roomId, int capacity) {
+		this.roomId = roomId;
+		this.capacity = capacity;
 	}
 
 	/**
@@ -92,11 +96,34 @@ public class Room {
 		Element roomXML = new Element("Room");
 		Element roomId = new Element("roomId");
 		Element capacity = new Element("capacity");
+		
 		roomId.setText(String.valueOf(this.roomId));
 		capacity.setText(String.valueOf(this.capacity));
+		
 		roomXML.addContent(roomId);
 		roomXML.addContent(capacity);
+		
 		return roomXML;
+	}
+	
+	/**
+	 * Generate a MAP of Room objects from a XML representation
+	 * @param roomListXML
+	 * @return rooms
+	 */
+	public static Map<Integer, Room> parseXML(Element roomListXML) {
+		List<Element> roomsXML = roomListXML.getChildren("Room");
+		Iterator<Element> itRooms = roomsXML.iterator();
+		Map<Integer, Room> rooms = new HashMap<Integer, Room>();
+		
+		while(itRooms.hasNext()) {
+			Element room = (Element)itRooms.next();
+			int roomId = Integer.parseInt(room.getChild("roomId").getText());
+			int capacity = Integer.parseInt(room.getChild("capacity").getText());
+			rooms.put(roomId, new Room(roomId, capacity));
+		}
+		
+		return rooms;
 	}
 
 }

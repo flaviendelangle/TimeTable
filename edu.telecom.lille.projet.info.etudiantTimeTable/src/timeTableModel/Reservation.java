@@ -49,10 +49,12 @@ public class Reservation {
 	/**
 	 * The constructor.
 	 */
-	public Reservation() {
-		// Start of user code constructor for Reservation)
-		super();
-		// End of user code
+	public Reservation(int bookId, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {
+		this.bookId = bookId;
+		this.room = room;
+		this.teacherLogin = teacherLogin;
+		this.dateBegin = dateBegin;
+		this.dateEnd = dateEnd;
 	}
 
 	/**

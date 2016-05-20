@@ -3,10 +3,18 @@
  *******************************************************************************/
 package timeTableModel;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import timeTableModel.Room;
 import timeTableModel.TimeTable;
@@ -21,21 +29,19 @@ import timeTableModel.TimeTable;
  */
 public class TimeTableDB {
 	/**
-	 * Description of the property timeTables.
+	 * List of all the timetables
 	 */
-	private Map<Integer, Room> rooms; //contient toutes les rooms (Id + capacity)
-	private Map<Integer, TimeTable> timeTables; //contient tous les timetables (Id + reservations)
-	
+	private Map<Integer, TimeTable> timeTables;
 
 	/**
-	 * Description of the property rooms.
+	 * List of all the rooms
 	 */
-	//public HashSet<Room> rooms = null;
+	private Map<Integer, Room> rooms;
 
 	/**
 	 * Description of the property file.
 	 */
-	private Object file = ;
+	private String file = "TimeTables.xml";
 
 
 	// Start of user code (user defined attributes for TimeTableDB)
@@ -46,25 +52,53 @@ public class TimeTableDB {
 	 * The constructor.
 	 */
 	public TimeTableDB() {
-		// Start of user code constructor for TimeTableDB)
 		super();
-		// End of user code
 	}
 
 	/**
 	 * Description of the method saveDB.
 	 */
 	public void saveDB() {
-		// Start of user code for method saveDB
-		// End of user code
+		Element rootXML = new Element("DataBase");
+		Element rooms = new Element("Rooms");
+		Element timeTables = new Element("TimeTables");
+		
+		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
+			rooms.addContent(entry.getValue().toXML());
+		}		
+		for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+			timeTables.addContent(entry.getValue().toXML());
+		}
+		
+		org.jdom2.Document document = new Document(rootXML);
+		try {
+			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
+			xml.output(document, new FileOutputStream(this.file));
+		}
+		catch(java.io.IOException e) {
+			
+		}
 	}
 
 	/**
 	 * Description of the method loadDB.
 	 */
 	public void loadDB() {
-		// Start of user code for method loadDB
-		// End of user code
+		org.jdom2.Document document = null;
+		Element rootXML;
+		SAXBuilder sxb = new SAXBuilder();
+		try {
+			document = sxb.build(new File(this.file));
+		}
+		catch(Exception e) {
+			
+		}
+		if(document != null) {
+			rootXML = document.getRootElement();
+			
+			this.rooms = Room.parseXML(rootXML.getChild("Rooms"));
+			this.timeTables = TimeTable.parseXML(rootXML.getChild("TimeTables"), this.rooms);
+		}
 	}
 
 	/**
@@ -251,7 +285,7 @@ public class TimeTableDB {
 	 * Returns timeTables.
 	 * @return timeTables 
 	 */
-	public HashSet<TimeTable> getTimeTables() {
+	public Map<Integer, TimeTable> getTimeTables() {
 		return this.timeTables;
 	}
 
@@ -260,7 +294,7 @@ public class TimeTableDB {
 	 * Sets a value to attribute timeTables. 
 	 * @param newTimeTables 
 	 */
-	public void setTimeTables(HashSet<TimeTable> newTimeTables) {
+	public void setTimeTables(Map<Integer, TimeTable> newTimeTables) {
 		this.timeTables = newTimeTables;
 	}
 
@@ -268,7 +302,7 @@ public class TimeTableDB {
 	 * Returns rooms.
 	 * @return rooms 
 	 */
-	public HashSet<Room> getRooms() {
+	public Map<Integer, Room> getRooms() {
 		return this.rooms;
 	}
 
@@ -276,25 +310,8 @@ public class TimeTableDB {
 	 * Sets a value to attribute rooms. 
 	 * @param newRooms 
 	 */
-	public void setRooms(HashSet<Room> newRooms) {
+	public void setRooms(Map<Integer, Room> newRooms) {
 		this.rooms = newRooms;
 	}
-
-	/**
-	 * Returns file.
-	 * @return file 
-	 */
-	public Object getFile() {
-		return this.file;
-	}
-
-	/**
-	 * Sets a value to attribute file. 
-	 * @param newFile 
-	 */
-	public void setFile(Object newFile) {
-		this.file = newFile;
-	}
-
 
 }
