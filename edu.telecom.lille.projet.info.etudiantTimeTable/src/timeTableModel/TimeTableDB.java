@@ -155,13 +155,12 @@ public class TimeTableDB {
 	/**
 	 * Description of the method booksIdToString.
 	 * @param timeTableId 
-	 * @return String array
+	 * @return String array (content : booksId)
 	 */
 	public String[] booksIdToString(Integer timeTableId) {
-		//1) récupérer le timetable correspondant à l'ID
-		//2) utiliser une fonction getBooksId à définir dans timeTable qui parcourt la map reservations pour récupérer les booksID
-		String[] booksIdToString ;
-		return booksIdToString;
+			TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
+
+		return timeTableResult.getBooksId(); // fonction à définir dans classe TimeTable
 
 	}
 
