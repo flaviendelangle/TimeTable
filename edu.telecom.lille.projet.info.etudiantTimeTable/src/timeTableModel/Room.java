@@ -3,6 +3,8 @@
  *******************************************************************************/
 package timeTableModel;
 
+import org.jdom2.Element;
+
 // Start of user code (user defined imports)
 
 // End of user code
@@ -80,6 +82,21 @@ public class Room {
 	 */
 	public void setCapacity(int newCapacity) {
 		this.capacity = newCapacity;
+	}
+
+	/**
+	 * Return the XML representation of the room
+	 * @return roomXML 
+	 */
+	public Element toXML() {
+		Element roomXML = new Element("Room");
+		Element roomId = new Element("roomId");
+		Element capacity = new Element("capacity");
+		roomId.setText(String.valueOf(this.roomId));
+		capacity.setText(String.valueOf(this.capacity));
+		roomXML.addContent(roomId);
+		roomXML.addContent(capacity);
+		return roomXML;
 	}
 
 }
