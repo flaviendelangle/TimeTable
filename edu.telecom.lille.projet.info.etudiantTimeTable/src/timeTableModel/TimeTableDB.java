@@ -18,9 +18,7 @@ import org.jdom2.output.XMLOutputter;
 
 import timeTableModel.Room;
 import timeTableModel.TimeTable;
-// Start of user code (user defined imports)
 
-// End of user code
 
 /**
  * Description of TimeTableDB.
@@ -56,7 +54,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Description of the method saveDB.
+	 * Save the current state of the database into a XML file
 	 */
 	public boolean saveDB() {
 		Element rootXML = new Element("DataBase");
@@ -84,7 +82,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Description of the method loadDB.
+	 * Load a XML file as the current database of the program
 	 */
 	public boolean loadDB() {
 		org.jdom2.Document document = null;
@@ -97,26 +95,33 @@ public class TimeTableDB {
 		catch(Exception e) {
 		}
 		if(document != null) {
-			success = true;
 			rootXML = document.getRootElement();
-			
-			this.rooms = Room.parseXML(rootXML.getChild("Rooms"));
-			this.timeTables = TimeTable.parseXML(rootXML.getChild("TimeTables"), this.rooms);
+			try {
+				success = true;
+				this.rooms = Room.parseXML(rootXML.getChild("Rooms"));
+				this.timeTables = TimeTable.parseXML(rootXML.getChild("TimeTables"), this.rooms);
+			}
+			catch(Exception e) {
+			}
 		}
 		return success;
 	}
 
 	/**
-	 * Description of the method getTeacherLogin.
+	 * Returns the login of the teacher of a given reservation.
 	 * @param timeTableId 
 	 * @param bookId 
-	 * @return 
+	 * @return teacherLogin
 	 */
 	public String getTeacherLogin(int timeTableId, int bookId) {
-		// Start of user code for method getTeacherLogin
-		String getTeacherLogin = "";
-		return getTeacherLogin;
-		// End of user code
+		String teacherLogin = "";
+		if(this.getTimeTables().containsKey(timeTableId)) {
+			Reservation reservation = this.getTimeTables().get(timeTableId).getBook(bookId);
+			if(reservation != null) {
+				teacherLogin = reservation.getTeacherLogin();
+			}
+		}
+		return teacherLogin;
 	}
 
 	/**
@@ -259,21 +264,27 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Description of the method addBooking.
+	 * Add a reservation to a given timetable.
+	 * Check if the reservation is possible by checking if :
+	 * 	- the timetable exists
+	 *  - the room exists
 	 * @param timeTableId 
 	 * @param bookingId 
 	 * @param login 
 	 * @param dateBegin 
 	 * @param dateEnd 
 	 * @param roomId 
-	 * @return 
+	 * @return success
 	 */
-	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd,
-			Integer roomId) {
-		// Start of user code for method addBooking
-		Boolean addBooking = Boolean.FALSE;
-		return addBooking;
-		// End of user code
+	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, Integer roomId) {
+		if(this.getRooms().containsKey(roomId) && this.getTimeTables().containsKey(timeTableId)) {
+			TimeTable timetable = this.getTimeTables().get(timeTableId); 
+			Room room = this.getRooms().get(roomId);
+			return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
+		}
+		else {
+			return false;
+		}
 	}
 
 	/**
@@ -283,33 +294,39 @@ public class TimeTableDB {
 	 * @param dateEnd 
 	 */
 	public void getBookingsDate(Integer timeTableId, Date dateBegin, Date dateEnd) {
-		// Start of user code for method getBookingsDate
-		// End of user code
 	}
 
 	/**
-	 * Description of the method removeBook.
+	 * Remove a reservation from a given timetable.
 	 * @param timeTableId 
 	 * @param bookId 
-	 * @return 
+	 * @return success
 	 */
 	public Boolean removeBook(Integer timeTableId, Integer bookId) {
-		// Start of user code for method removeBook
-		Boolean removeBook = Boolean.FALSE;
-		return removeBook;
-		// End of user code
+		Boolean success;
+		if(this.getTimeTables().containsKey(timeTableId)) {
+			success = this.getTimeTables().get(timeTableId).removeBook(bookId);
+		}
+		else {
+			success = false;
+		}
+		return success;
 	}
 
 	/**
-	 * Description of the method getBookingsMaxId.
+	 * Return the maximum identifier of the reservations of a given timetable.
 	 * @param timeTableId 
-	 * @return 
+	 * @return bookingsMaxId
 	 */
 	public int getBookingsMaxId(Integer timeTableId) {
-		// Start of user code for method getBookingsMaxId
-		Integer getBookingsMaxId = Integer.valueOf(0);
-		return getBookingsMaxId;
-		// End of user code
+		int bookingsMaxId;
+		if(this.getTimeTables().containsKey(timeTableId)) {
+			bookingsMaxId = this.getTimeTables().get(timeTableId).getBookingsMaxId();
+		}
+		else {
+			bookingsMaxId = -1;
+		}
+		return bookingsMaxId;
 	}
 
 	/**

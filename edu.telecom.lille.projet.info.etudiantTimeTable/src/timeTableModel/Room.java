@@ -10,9 +10,6 @@ import java.util.Map;
 
 import org.jdom2.Element;
 
-// Start of user code (user defined imports)
-
-// End of user code
 
 /**
  * Description of Room.

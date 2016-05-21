@@ -34,11 +34,6 @@ public class TimeTable {
 	 */
 	private Map<Integer,Reservation> reservations;
 	
-	
-	// Start of user code (user defined attributes for TimeTable)
-	
-	// End of user code
-
 	/**
 	 * The constructor.
 	 */
@@ -87,11 +82,29 @@ public class TimeTable {
 	public Reservation getBook(int bookId) {
 		return this.getReservations().get(bookId);
 	}
-	
-	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd,
-			Integer roomId) {
-				return null;
-	
+
+	/**
+	 * Add a reservation to this timetable.
+	 * Check if the reservation is possible by checking the dates of every other reservation in this room 
+	 * @param bookingId
+	 * @param teacherLogin
+	 * @param dateBegin
+	 * @param dateEnd
+	 * @param room
+	 * @return success
+	 */
+	public Boolean addBooking(int bookingId, String teacherLogin, Date dateBegin, Date dateEnd, Room room) {
+		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
+			Reservation reservation = entry.getValue();
+			if(reservation.getRoom().getId() == room.getId()) {
+				if(dateEnd.after(reservation.getDateBegin()) || dateBegin.before(reservation.getDateEnd())) {
+					return false;
+				}
+			}
+		}
+		Reservation reservation = new Reservation(bookingId, room, teacherLogin, dateBegin, dateEnd);
+		this.getReservations().put(bookingId, reservation);
+		return true;	
 	}
 
 	/**
@@ -129,7 +142,13 @@ public class TimeTable {
 	 * @return bookID
 	 */
 	public int getBookingsMaxId() {
-		int bookId = Collections.max(this.getReservations().keySet());
+		int bookId;
+		if(this.getReservations().isEmpty()) {
+			bookId = -1;
+		}
+		else {
+			bookId = Collections.max(this.getReservations().keySet());
+		}
 		return bookId;
 	}	
 	
