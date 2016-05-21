@@ -141,7 +141,7 @@ public class TimeTableDB {
 			i++;
 			}
 		
-		return result; // toString() à définir dans classe Room pour retourner un String "ID + capa"
+		return result; 
 	}
 
 	/**
@@ -170,40 +170,48 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method addRoom.
-	 * @param roomId 
-	 * @param capacity 
-	 * @return 
+	 * @param roomId (Integer)
+	 * @param capacity (Integer)
+	 * @return Boolean (true if the room is correctly added, false if the room already exist)
 	 */
-	public Boolean addRoom(Integer roomId, Integer capacity) {
-		// Start of user code for method addRoom
-		Boolean addRoom = Boolean.FALSE;
-		return addRoom;
-		// End of user code
+	public Boolean addRoom(Integer roomId, Integer capacity) {	
+		Boolean result;
+		result = !(rooms.containsKey(roomId));
+		
+		if(result){
+			Room newRoom = new Room(roomId, capacity);
+			rooms.put(roomId, newRoom);
+		}
+		
+		return result;
 	}
 
 	/**
 	 * Description of the method removeRoom.
-	 * @param roomId 
-	 * @return 
+	 * @param roomId (Integer)
+	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
 	public Boolean removeRoom(Integer roomId) {
-		// Start of user code for method removeRoom
-		Boolean removeRoom = Boolean.FALSE;
-		return removeRoom;
-		// End of user code
+		Boolean result;
+		result = rooms.containsKey(roomId);
+		
+		if(result){
+			rooms.remove(roomId);
+		}
+		
+		return result;
 	}
 
 	/**
 	 * Description of the method getRoom.
-	 * @param timeTableId 
-	 * @param bookId 
-	 * @return 
+	 * @param timeTableId (Integer)
+	 * @param bookId (Integer)
+	 * @return Id of the Room we search (Integer)
 	 */
 	public Integer getRoom(Integer timeTableId, Integer bookId) {
-		// Start of user code for method getRoom
-		Integer getRoom = Integer.valueOf(0);
-		return getRoom;
-		// End of user code
+		TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
+
+		return timeTableResult.getBook(bookId).getRoom().getId();
 	}
 
 	/**
