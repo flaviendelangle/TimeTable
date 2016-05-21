@@ -42,17 +42,6 @@ public class Room {
 		this.capacity = capacity;
 	}
 
-	/**
-	 * Description of the method toString.
-	 * @return 
-	 */
-	public String toString() {
-		// Start of user code for method toString
-		String toString = "";
-		return toString;
-		// End of user code
-	}
-
 	// Start of user code (user defined methods for Room)
 
 	// End of user code
@@ -89,6 +78,15 @@ public class Room {
 	}
 
 	/**
+	 * Stringified version of the Room object.
+	 * @return toString
+	 */
+	public String toString() {
+		String toString = "Room n°" + this.getRoomId() + " (" + this.getCapacity() + " student)";
+		return toString;
+	}	
+
+	/**
 	 * Return the XML representation of the room
 	 * @return roomXML 
 	 */
@@ -118,8 +116,8 @@ public class Room {
 		
 		while(itRooms.hasNext()) {
 			Element room = (Element)itRooms.next();
-			int roomId = Integer.parseInt(room.getChild("roomId").getText());
-			int capacity = Integer.parseInt(room.getChild("capacity").getText());
+			int roomId = Integer.parseInt(room.getChildText("roomId"));
+			int capacity = Integer.parseInt(room.getChildText("capacity"));
 			rooms.put(roomId, new Room(roomId, capacity));
 		}
 		

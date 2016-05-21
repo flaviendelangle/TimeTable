@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.jdom2.Element;
 
@@ -28,7 +29,7 @@ public class TimeTable {
 	/**
 	 * Map interface containing all the rooms related to the timetable
 	 */
-	private Map<Integer,Room> reservations;
+	private Map<Integer,Reservation> reservations;
 	
 	
 	// Start of user code (user defined attributes for TimeTable)
@@ -38,7 +39,7 @@ public class TimeTable {
 	/**
 	 * The constructor.
 	 */
-	public TimeTable(int timeTableId, Map<Integer,Room> reservations) {
+	public TimeTable(int timeTableId, Map<Integer,Reservation> reservations) {
 		this.timeTableId = timeTableId;
 		this.reservations = reservations;
 	}
@@ -63,6 +64,15 @@ public class TimeTable {
 	}
 
 	/**
+	 * Stringified version of the TimeTable object.
+	 * @return toString
+	 */
+	public String toString() {
+		String toString = "TimeTable n°" + this.getTimeTableId();
+		return toString;
+	}	
+	
+	/**
 	 * Return the XML representation of the timetable
 	 * @return roomXML 
 	 */
@@ -74,7 +84,7 @@ public class TimeTable {
 		timeTableId.setText(String.valueOf(this.timeTableId));
 		timeTableXML.addContent(timeTableId);
 		
-		for(Map.Entry<Integer, Room> entry : this.reservations.entrySet()) {
+		for(Entry<Integer, Reservation> entry : this.reservations.entrySet()) {
 			Reservations.addContent(entry.getValue().toXML());
 		}
 		timeTableXML.addContent(Reservations);
@@ -87,20 +97,19 @@ public class TimeTable {
 	 * @param timeTableListXML
 	 * @return timeTables
 	 */
-	public static Map<Integer, TimeTable> parseXML(Element timeTableListXML) {
+	public static Map<Integer, TimeTable> parseXML(Element timeTableListXML, Map<Integer, Room>rooms) {
 		List<Element> timeTablesXML = timeTableListXML.getChildren("Room");
-		Iterator<Element> itRooms = timeTablesXML.iterator();
+		Iterator<Element> itTimeTable = timeTablesXML.iterator();
 		Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();
 		
-		while(itRooms.hasNext()) {
-			Element room = (Element)itRooms.next();
-			int timeTableId = Integer.parseInt(room.getChild("roomId").getText());
-			int capacity = Integer.parseInt(room.getChild("capacity").getText());
-			timeTables.put(roomId, new TimeTable(roomId, capacity));
+		while(itTimeTable.hasNext()) {
+			Element timeTable = (Element)itTimeTable.next();
+			int timeTableId = Integer.parseInt(timeTable.getChildText("roomId"));
+			Map<Integer,Reservation> reservations = Reservation.parseXML(timeTable.getChild("Reservations"), rooms);
+			timeTables.put(timeTableId, new TimeTable(timeTableId, reservations));
 		}
 		
 		return timeTables;
 	}
-
 
 }
