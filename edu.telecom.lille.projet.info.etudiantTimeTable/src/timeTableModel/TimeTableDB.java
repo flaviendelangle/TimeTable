@@ -132,12 +132,16 @@ public class TimeTableDB {
 	 */
 	public String[] roomsToString() {
 		
+		String[] result = new String[rooms.size()];
+		int i = 0 ;
+		
 		for (Map.Entry<Integer, Room> entry : rooms.entrySet())
 			{
-			entry.getValue();
+			result[i] =  entry.getValue().toString();
+			i++;
 			}
 		
-		return entry.toString(); // toString() à définir dans classe Room pour retourner un String "ID + capa"
+		return result; // toString() à définir dans classe Room pour retourner un String "ID + capa"
 	}
 
 	/**
