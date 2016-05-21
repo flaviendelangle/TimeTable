@@ -121,6 +121,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method roomsIdToString.
+	 * We recover all the keys of the map room in a Set.
+	 * Then we cast the set in an array of String.
 	 * @return String array (content : ID of the rooms)
 	 */
 	public String[] roomsIdToString() {
@@ -133,6 +135,7 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method roomsToString.
+	 * We browse all the map rooms to see the values of each Room and we put the informations into an array of String (thanks to the function toString() of Room)
 	 * @return String array (content : ID of the rooms + capacity)
 	 */
 	public String[] roomsToString() {
@@ -151,6 +154,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method timeTablesIDToString.
+	 * We recover all the keys of the map timeTable in a Set.
+	 * Then we cast the set in an array of String.
 	 * @return String array (content : ID of the timeTable)
 	 */
 	public String[] timeTablesIDToString() {
@@ -163,18 +168,23 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method booksIdToString.
+	 * We get the timeTable matching with the ID.
+	 * Then we use the function getBookingsId  of timeTable to return a String Array containing the BooksId. 
 	 * @param timeTableId 
 	 * @return String array (content : booksId)
 	 */
 	public String[] booksIdToString(Integer timeTableId) {
 			TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
 
-		return timeTableResult.getBooksId(); // fonction à définir dans classe TimeTable
+			if(timeTableResult == null)return -1;
+			else { return timeTableResult.getBookingsId(); }
 
 	}
 
 	/**
 	 * Description of the method addRoom.
+	 * We check if the room we want to add already exists or not.
+	 * If the room does not exist we add it to the map.
 	 * @param roomId (Integer)
 	 * @param capacity (Integer)
 	 * @return Boolean (true if the room is correctly added, false if the room already exist)
@@ -193,6 +203,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method removeRoom.
+	 * We check if the room we want to remove exists or not.
+	 * If the room exists we remove it from the map.
 	 * @param roomId (Integer)
 	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
@@ -209,6 +221,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method getRoom.
+	 * We get the timeTable matching with the ID.
+	 * Then we use functions existing in Room to return the Room Id.
 	 * @param timeTableId (Integer)
 	 * @param bookId (Integer)
 	 * @return Id of the Room we search (Integer)
@@ -216,7 +230,8 @@ public class TimeTableDB {
 	public Integer getRoom(Integer timeTableId, Integer bookId) {
 		TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
 
-		return timeTableResult.getBook(bookId).getRoom().getId();
+		if(timeTableResult == null)return -1;
+		else {return timeTableResult.getBook(bookId).getRoom().getId();}
 	}
 
 	/**
