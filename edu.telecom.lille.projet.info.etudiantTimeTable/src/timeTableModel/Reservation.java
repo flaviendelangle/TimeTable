@@ -24,14 +24,14 @@ import org.jdom2.Element;
 public class Reservation {
 
 	/**
-	 * Description of the property dateEnd.
-	 */
-	private Room room = null;
-
-	/**
 	 * Number of the reservation.
 	 */
-	private int bookId = 0;
+	private int id = 0;
+
+	/**
+	 * Room in which the reservation take place.
+	 */
+	private Room room = null;
 
 	/**
 	 * Login of the teacher who has done the reservation.
@@ -51,83 +51,32 @@ public class Reservation {
 	/**
 	 * The constructor.
 	 */
-	public Reservation(int bookId, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {
-		this.bookId = bookId;
-		this.room = room;
-		this.teacherLogin = teacherLogin;
-		this.dateBegin = dateBegin;
-		this.dateEnd = dateEnd;
+	public Reservation(int id, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {
+		this.setId(id);
+		this.setRoom(room);
+		this.setTeacherLogin(teacherLogin);
+		this.setDateBegin(dateBegin);
+		this.setDateEnd(dateEnd);
 	}
 
-	// Start of user code (user defined methods for Reservation)
-
-	// End of user code
 	/**
-	 * Returns dateEnd.
-	 * @return dateEnd 
+	 * Returns the identifier of this reservation.
+	 * @return id 
 	 */
-	public Date getDateEnd() {
-		return this.dateEnd;
+	public int getId() {
+		return this.id;
 	}
 
 	/**
-	 * Sets a value to attribute dateEnd. 
-	 * @param newDateEnd 
+	 * Update the identifier of this reservation
+	 * @param newId 
 	 */
-	public void setDateEnd(Date newDateEnd) {
-		this.dateEnd = newDateEnd;
+	public void setId(int newId) {
+		this.id = newId;
 	}
 
 	/**
-	 * Returns bookId.
-	 * @return bookId 
-	 */
-	public int getBookId() {
-		return this.bookId;
-	}
-
-	/**
-	 * Sets a value to attribute bookId. 
-	 * @param newBookId 
-	 */
-	public void setBookId(int newBookId) {
-		this.bookId = newBookId;
-	}
-
-	/**
-	 * Returns teacherLogin.
-	 * @return teacherLogin 
-	 */
-	public String getTeacherLogin() {
-		return this.teacherLogin;
-	}
-
-	/**
-	 * Sets a value to attribute teacherLogin. 
-	 * @param newTeacherLogin 
-	 */
-	public void setTeacherLogin(String newTeacherLogin) {
-		this.teacherLogin = newTeacherLogin;
-	}
-
-	/**
-	 * Returns dateBegin.
-	 * @return dateBegin 
-	 */
-	public Date getDateBegin() {
-		return this.dateBegin;
-	}
-
-	/**
-	 * Sets a value to attribute dateBegin. 
-	 * @param newDateBegin 
-	 */
-	public void setDateBegin(Date newDateBegin) {
-		this.dateBegin = newDateBegin;
-	}
-
-	/**
-	 * Returns rooms.
+	 * Returns the room in which the reservation will take place.
 	 * @return rooms 
 	 */
 	public Room getRoom() {
@@ -135,7 +84,7 @@ public class Reservation {
 	}
 
 	/**
-	 * Sets a value to attribute rooms. 
+	 * Update the room in which the reservation will take place.
 	 * @param newRooms 
 	 */
 	public void setRoom(Room newRoom) {
@@ -143,11 +92,59 @@ public class Reservation {
 	}
 
 	/**
-	 * Stringified version of the Reservation object.
+	 * Returns the login of the teacher who has made the reservation.
+	 * @return teacherLogin 
+	 */
+	public String getTeacherLogin() {
+		return this.teacherLogin;
+	}
+
+	/**
+	 * Update the login of the teacher who has made the reservation
+	 * @param newTeacherLogin 
+	 */
+	public void setTeacherLogin(String newTeacherLogin) {
+		this.teacherLogin = newTeacherLogin;
+	}
+
+	/**
+	 * Returns the date at which the reservation will begin.
+	 * @return dateBegin 
+	 */
+	public Date getDateBegin() {
+		return this.dateBegin;
+	}
+
+	/**
+	 * Update the date at which the reservation will begin. 
+	 * @param newDateBegin 
+	 */
+	public void setDateBegin(Date newDateBegin) {
+		this.dateBegin = newDateBegin;
+	}
+
+	/**
+	 * Returns the date at which the reservation will end.
+	 * @return dateEnd 
+	 */
+	public Date getDateEnd() {
+		return this.dateEnd;
+	}
+
+	/**
+	 * Update the date at which the reservation will end. 
+	 * @param newDateEnd 
+	 */
+	public void setDateEnd(Date newDateEnd) {
+		this.dateEnd = newDateEnd;
+	}	
+
+	/**
+	 * Return the string representation of this reservation.
 	 * @return toString
 	 */
 	public String toString() {
-		String toString = "Reservation n°" + this.getBookId() + "in room " + this.room.getRoomId();
+		String toString = "Reservation n°" + this.getId() + "in room " + this.room.getId();
 		return toString;
 	}
 
@@ -165,8 +162,8 @@ public class Reservation {
 		Element dateEnd = new Element("dateEnd");
 		Element teacherLogin = new Element("teacherLogin");
 		
-		roomId.setText(String.valueOf(this.room.getRoomId()));
-		bookId.setText(String.valueOf(this.bookId));
+		roomId.setText(String.valueOf(this.room.getId()));
+		bookId.setText(String.valueOf(this.getId()));
 		dateBegin.setText(dateformat.format(this.dateBegin));
 		dateEnd.setText(dateformat.format(this.dateEnd));
 		teacherLogin.setText(this.teacherLogin);

@@ -25,7 +25,7 @@ import timeTableModel.TimeTable;
 /**
  * Description of TimeTableDB.
  * 
- * @author delangle
+ * @author Flavien DELANGLE and Marie PAYET
  */
 public class TimeTableDB {
 	/**
@@ -58,7 +58,7 @@ public class TimeTableDB {
 	/**
 	 * Description of the method saveDB.
 	 */
-	public void saveDB() {
+	public boolean saveDB() {
 		Element rootXML = new Element("DataBase");
 		Element rooms = new Element("Rooms");
 		Element timeTables = new Element("TimeTables");
@@ -71,34 +71,39 @@ public class TimeTableDB {
 		}
 		
 		org.jdom2.Document document = new Document(rootXML);
+		Boolean success;
 		try {
 			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
 			xml.output(document, new FileOutputStream(this.file));
+			success = true;
 		}
 		catch(java.io.IOException e) {
-			
+			success = false;
 		}
+		return success;
 	}
 
 	/**
 	 * Description of the method loadDB.
 	 */
-	public void loadDB() {
+	public boolean loadDB() {
 		org.jdom2.Document document = null;
 		Element rootXML;
 		SAXBuilder sxb = new SAXBuilder();
+		Boolean success = false;;
 		try {
 			document = sxb.build(new File(this.file));
 		}
 		catch(Exception e) {
-			
 		}
 		if(document != null) {
+			success = true;
 			rootXML = document.getRootElement();
 			
 			this.rooms = Room.parseXML(rootXML.getChild("Rooms"));
 			this.timeTables = TimeTable.parseXML(rootXML.getChild("TimeTables"), this.rooms);
 		}
+		return success;
 	}
 
 	/**
@@ -285,7 +290,7 @@ public class TimeTableDB {
 	 * @param timeTableId 
 	 * @return 
 	 */
-	public Integer getBookingsMaxId(Integer timeTableId) {
+	public int getBookingsMaxId(Integer timeTableId) {
 		// Start of user code for method getBookingsMaxId
 		Integer getBookingsMaxId = Integer.valueOf(0);
 		return getBookingsMaxId;

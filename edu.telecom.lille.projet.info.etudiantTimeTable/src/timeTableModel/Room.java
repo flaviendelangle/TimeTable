@@ -17,52 +17,46 @@ import org.jdom2.Element;
 /**
  * Description of Room.
  * 
- * @author delangle
+ * @author Flavien DELANGLE and Marie PAYET
  */
 public class Room {
+	
 	/**
-	 * Description of the property roomId.
+	 * Identifier of this room.
 	 */
-	public int roomId = 0;
+	private int id = 0;
 
 	/**
-	 * Description of the property capacity.
+	 * Capacity of this room.
 	 */
-	public int capacity = 0;
-
-	// Start of user code (user defined attributes for Room)
-
-	// End of user code
+	private int capacity = 0;
 
 	/**
 	 * The constructor.
 	 */
-	public Room(int roomId, int capacity) {
-		this.roomId = roomId;
-		this.capacity = capacity;
+	public Room(int id, int capacity) {
+		this.setId(id);
+		this.setCapacity(capacity);
 	}
 
-	// Start of user code (user defined methods for Room)
-
-	// End of user code
 	/**
-	 * Returns roomId.
-	 * @return roomId 
+	 * Returns the identifier of this room.
+	 * @return id 
 	 */
-	public int getRoomId() {
-		return this.roomId;
+	public int getId() {
+		return this.id;
 	}
 
 	/**
-	 * Sets a value to attribute roomId. 
+	 * Update the identifier of this room. 
 	 * @param newRoomId 
 	 */
-	public void setRoomId(int newRoomId) {
-		this.roomId = newRoomId;
+	public void setId(int newId) {
+		this.id = newId;
 	}
 
 	/**
-	 * Returns capacity.
+	 * Returns the capacity of this room.
 	 * @return capacity 
 	 */
 	public int getCapacity() {
@@ -70,7 +64,7 @@ public class Room {
 	}
 
 	/**
-	 * Sets a value to attribute capacity. 
+	 * Update the capacity of this room. 
 	 * @param newCapacity 
 	 */
 	public void setCapacity(int newCapacity) {
@@ -78,11 +72,11 @@ public class Room {
 	}
 
 	/**
-	 * Stringified version of the Room object.
+	 * Return a string representation of this room.
 	 * @return toString
 	 */
 	public String toString() {
-		String toString = "Room n°" + this.getRoomId() + " (" + this.getCapacity() + " student)";
+		String toString = "Room n°" + this.getId() + " (" + this.getCapacity() + " student)";
 		return toString;
 	}	
 
@@ -95,8 +89,8 @@ public class Room {
 		Element roomId = new Element("roomId");
 		Element capacity = new Element("capacity");
 		
-		roomId.setText(String.valueOf(this.roomId));
-		capacity.setText(String.valueOf(this.capacity));
+		roomId.setText(String.valueOf(this.getId()));
+		capacity.setText(String.valueOf(this.getCapacity()));
 		
 		roomXML.addContent(roomId);
 		roomXML.addContent(capacity);

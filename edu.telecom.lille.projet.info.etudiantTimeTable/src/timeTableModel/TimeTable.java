@@ -3,6 +3,8 @@
  *******************************************************************************/
 package timeTableModel;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -18,16 +20,17 @@ import org.jdom2.Element;
 /**
  * Description of TimeTable.
  * 
- * @author delangle
+ * @author Flavien DELANGLE and Marie PAYET
  */
 public class TimeTable {
+	
 	/**
 	 * Id of the current timetable
 	 */
-	private int timeTableId = 0;
+	private int id = 0;
 
 	/**
-	 * Map interface containing all the rooms related to the timetable
+	 * Map interface containing all the rooms related to the timetable.
 	 */
 	private Map<Integer,Reservation> reservations;
 	
@@ -40,35 +43,102 @@ public class TimeTable {
 	 * The constructor.
 	 */
 	public TimeTable(int timeTableId, Map<Integer,Reservation> reservations) {
-		this.timeTableId = timeTableId;
-		this.reservations = reservations;
+		this.setId(timeTableId);
+		this.setReservations(reservations);
 	}
 
-	// Start of user code (user defined methods for TimeTable)
-
-	// End of user code
 	/**
-	 * Returns groupId.
+	 * Returns the identifier of this timetable.
+	 * @return id 
+	 */
+	public int getId() {
+		return this.id;
+	}
+
+	/**
+	 * Update the identifier of this timetable.
+	 * @param newId 
+	 */
+	public void setId(int newId) {
+		this.id = newId;
+	}
+
+	/**
+	 * Returns the reservations linked to this timetable.
 	 * @return groupId 
 	 */
-	public Object getTimeTableId() {
-		return this.timeTableId;
+	public Map<Integer,Reservation> getReservations() {
+		return this.reservations;
 	}
 
 	/**
-	 * Sets a value to attribute groupId. 
+	 * Update the reservations linked to this timetable. 
 	 * @param newGroupId 
 	 */
-	public void setTimeTableId(int newTimeTableId) {
-		this.timeTableId = newTimeTableId;
+	public void setReservations(Map<Integer,Reservation> newReservations) {
+		this.reservations = newReservations;
+	}
+	
+	/**
+	 * Returns the reservation which have the correct identifier
+	 * @param bookId
+	 * @return reservation
+	 */
+	public Reservation getBook(int bookId) {
+		return this.getReservations().get(bookId);
+	}
+	
+	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd,
+			Integer roomId) {
+				return null;
+	
 	}
 
 	/**
-	 * Stringified version of the TimeTable object.
+	 * Remove a reservation from this timetable
+	 * @param bookId
+	 * @return success
+	 */
+	public Boolean removeBook(int bookId) {
+		if(this.getReservations().containsKey(bookId)) {
+			this.getReservations().remove(bookId);
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Return a table of strings containing the identifier of all the reservations linked to this timetable
+	 * @return booksId
+	 */
+	public String[] getBookingsId() {
+		int length = this.getReservations().size();
+		int i = 0;
+		String[] booksId = new String[length];
+		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
+			booksId[i] = String.valueOf(entry.getKey());
+			i++;
+		}
+		return booksId;
+	}
+
+	/**
+	 * Return the maximum identifier of the reservations of this timetable
+	 * @return bookID
+	 */
+	public int getBookingsMaxId() {
+		int bookId = Collections.max(this.getReservations().keySet());
+		return bookId;
+	}	
+	
+	/**
+	 * Return the string representation of this timetable.
 	 * @return toString
 	 */
 	public String toString() {
-		String toString = "TimeTable n°" + this.getTimeTableId();
+		String toString = "TimeTable n°" + this.getId();
 		return toString;
 	}	
 	
@@ -81,10 +151,10 @@ public class TimeTable {
 		Element timeTableId = new Element("timeTableId");
 		Element Reservations = new Element("Reservations");
 		
-		timeTableId.setText(String.valueOf(this.timeTableId));
+		timeTableId.setText(String.valueOf(this.getId()));
 		timeTableXML.addContent(timeTableId);
 		
-		for(Entry<Integer, Reservation> entry : this.reservations.entrySet()) {
+		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
 			Reservations.addContent(entry.getValue().toXML());
 		}
 		timeTableXML.addContent(Reservations);
