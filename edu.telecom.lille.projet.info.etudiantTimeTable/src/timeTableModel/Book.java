@@ -176,16 +176,39 @@ public class Book {
 	}
 
 	/**
+	 * Returns a SQL request to create this Book in the database
+	 * @return roomSQL
+	 */
+	public String toSQL(int timeTableId) {
+		String bookSQL = Book.createSQL(this.getId(), this.getTeacherLogin(), this.getRoom().getId(), 
+										this.getDateBegin(), this.getDateEnd(), timeTableId);
+		return bookSQL;
+	}
+
+	/**
+	 * Returns a SQL request to create this Book in the database
+	 * @return roomSQL
+	 */
+	public static String createSQL(int bookId, String teacherLogin, int roomId, Date dateBeginStr, Date dateEndStr, int timeTableId) {
+		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dateBegin = dateformat.format(dateBeginStr);
+		String dateEnd = dateformat.format(dateEndStr);
+		String bookSQL = "INSERT INTO Book (BookingId, Login, DateBegin, DateEnd, RoomId, TimeTableId)"
+			+ " VALUES(" + bookId + ",\"" + teacherLogin + "\",\"" + dateBegin + "\",\"" + dateEnd
+			+ "\"," + roomId + "," + timeTableId + ");";
+		return bookSQL;
+	}
+
+	/**
 	 * Generate a MAP of Book objects from a XML representation
 	 * @param bookListXML
 	 * @return rooms
 	 */
-	public static Map<Integer, Book> parseXML(Element bookListXML, Map<Integer, Room>rooms) {
+	public static void parseXML(Element bookListXML, Map<Integer, Book>books, Map<Integer, Room>rooms) {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		
 		List<Element> booksXML = bookListXML.getChildren("Book");
 		Iterator<Element> itBooks = booksXML.iterator();
-		Map<Integer, Book> books = new HashMap<Integer, Book>();
 		
 		while(itBooks.hasNext()) {
 			Element book = (Element)itBooks.next();
@@ -204,8 +227,6 @@ public class Book {
 			}
 			books.put(bookId, new Book(bookId, room, teacherLogin, dateBegin, dateEnd));
 		}
-		
-		return books;
 	}
 
 }

@@ -5,7 +5,15 @@ package timeTableModel;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -26,28 +34,89 @@ import timeTableModel.TimeTable;
  * @author Flavien DELANGLE and Marie PAYET
  */
 public class TimeTableDB {
+
+	/**
+	 * Activate or not the SQL storage
+	 */
+	private static final Boolean SQLactivated = true;		
+
+	/**
+	 * File where the program save all the data if the SQL mode is not activated.
+	 */
+	private static String fileXML = "";
+
+	/**
+	 * File where the program save all the data if the SQL mode is activated.
+	 */
+	private static String fileSQL = "timeTableDB.db";
+
+	/**
+	 * Database connection object
+	 */
+	public Connection connection;
 	
+	/**
+	 * Statement of the database connection
+	 */
+	public Statement stmt;
+
 	/**
 	 * List of all the timetables
 	 */
-	private Map<Integer, TimeTable> timeTables;
+	private Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();;
 
 	/**
 	 * List of all the rooms
 	 */
-	private Map<Integer, Room> rooms;
-
-	/**
-	 * File where the program save all the data.
-	 */
-	private String file = "timeTableDB.xml";
+	private Map<Integer, Room> rooms = new HashMap<Integer, Room>();;
 
 	/**
 	 * The constructor.
 	 */
-	public TimeTableDB(String file) {
-		this.setFile(file);
+	public TimeTableDB(String fileXML) {
+		this.setFileXML(fileXML);
+		this.initSQL();
 		this.loadDB();
+	}
+		
+	/**
+	 * Check is the SQL storage is activated
+	 * @return SQL
+	 */
+	public Boolean isSQL() {
+		return TimeTableDB.SQLactivated;
+	}
+
+	/**
+	 * Sets a value to attribute file. 
+	 * @param newFile 
+	 */
+	public void setFileXML(String newFileXML) {
+		TimeTableDB.fileXML = newFileXML;
+	}
+	
+	/**
+	 * Returns file.
+	 * @return file 
+	 */
+	public String getFileXML() {
+		return TimeTableDB.fileXML;
+	}
+
+	/**
+	 * Sets a value to attribute file. 
+	 * @param newFile 
+	 */
+	public void setFileSQL(String newFileSQL) {
+		TimeTableDB.fileSQL = newFileSQL;
+	}
+	
+	/**
+	 * Returns file.
+	 * @return file 
+	 */
+	public String getFileSQL() {
+		return TimeTableDB.fileSQL;
 	}
 
 	/**
@@ -75,22 +144,6 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Sets a value to attribute file. 
-	 * @param newFile 
-	 */
-	public void setFile(String newFile) {
-		this.file = newFile;
-	}
-	
-	/**
-	 * Returns file.
-	 * @return file 
-	 */
-	public String getFile() {
-		return this.file;
-	}
-
-	/**
 	 * Sets a value to attribute rooms. 
 	 * @param newRooms 
 	 */
@@ -102,40 +155,70 @@ public class TimeTableDB {
 	 * Save the current state of the database into a XML file
 	 */
 	public boolean saveDB() {
-		Element rootXML = new Element("TimeTablesDB");
-		Element rooms = new Element("Rooms");
-		Element timeTables = new Element("TimeTables");
-		
-		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
-			rooms.addContent(entry.getValue().toXML());
-		}		
-		for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
-			timeTables.addContent(entry.getValue().toXML());
+		if(this.isSQL()) {
+			return true;
 		}
-		
-		org.jdom2.Document document = new Document(rootXML);
-		Boolean success;
-		try {
-			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
-			xml.output(document, new FileOutputStream(this.getFile()));
-			success = true;
+		else {
+			return this.saveXML(this.timeTables, this.rooms);
 		}
-		catch(java.io.IOException e) {
-			success = false;
-		}
-		return success;
 	}
 
 	/**
 	 * Load a XML file as the current database of the program
 	 */
 	public boolean loadDB() {
+		if(this.isSQL()) {
+			return true;
+		}
+		else {
+			return this.loadXML(this.timeTables, this.rooms);
+		}
+	}
+
+	/**
+	 * Save the actual state of the program into a XML database
+	 * @param timeTables
+	 * @param rooms
+	 * @return success
+	 */
+	public Boolean saveXML(Map<Integer, TimeTable> timeTables, Map<Integer, Room> rooms) {
+		Element rootXML = new Element("TimeTablesDB");
+		Element roomsXML = new Element("Rooms");
+		Element timeTablesXML = new Element("TimeTables");
+		
+		for(Map.Entry<Integer, Room> entry : rooms.entrySet()) {
+			roomsXML.addContent(entry.getValue().toXML());
+		}		
+		for(Map.Entry<Integer, TimeTable> entry : timeTables.entrySet()) {
+			timeTablesXML.addContent(entry.getValue().toXML());
+		}
+		
+		org.jdom2.Document document = new Document(rootXML);
+		Boolean success;
+		try {
+			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
+			xml.output(document, new FileOutputStream(this.getFileXML()));
+			success = true;
+		}
+		catch(java.io.IOException e) {
+			success = false;
+		}
+		return success;		
+	}
+	
+	/**
+	 * Load the data of a XML database into the program
+	 * @param timeTables
+	 * @param rooms
+	 * @return success
+	 */
+	public Boolean loadXML(Map<Integer, TimeTable> timeTables, Map<Integer, Room> rooms) {
 		org.jdom2.Document document = null;
 		Element rootXML;
 		SAXBuilder sxb = new SAXBuilder();
 		Boolean success = false;;
 		try {
-			document = sxb.build(new File(this.getFile()));
+			document = sxb.build(new File(this.getFileXML()));
 		}
 		catch(Exception e) {
 		}
@@ -143,13 +226,180 @@ public class TimeTableDB {
 			rootXML = document.getRootElement();
 			try {
 				success = true;
-				this.rooms = Room.parseXML(rootXML.getChild("Rooms"));
-				this.timeTables = TimeTable.parseXML(rootXML.getChild("TimeTables"), this.rooms);
+				Room.parseXML(rootXML.getChild("Rooms"), rooms);
+				TimeTable.parseXML(rootXML.getChild("TimeTables"), timeTables, rooms);
 			}
 			catch(Exception e) {
 			}
 		}
+		return success;		
+	}
+	
+	/**
+	 * Create a connection between this program and the SQLite database
+	 */
+	public void initSQL() {
+		if(this.isSQL()) {
+			String dbName = this.getFileSQL();
+			File file = new File (dbName);
+			if(!file.exists() || true) {
+				this.XMLtoSQL();
+			}
+		}
+	}
+	
+	/**
+	 * Create a SQLite database with the data of a XML database
+	 * @throws SQLException 
+	 */
+	public Boolean XMLtoSQL() {
+		Boolean success = this.loadXML(this.timeTables, this.rooms);
+		if(success) {
+			File file = new File (this.getFileSQL());
+			if(file.exists()) {
+				try {
+					Files.delete(file.toPath());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			try {
+				Class.forName("org.sqlite.JDBC");
+				this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.getFileSQL());
+				this.stmt = this.connection.createStatement();
+			}
+			catch(Exception e) {
+			}
+			success &= this.sql("CREATE TABLE TimeTable (GroupId INT);");
+			success &= this.sql("CREATE TABLE Room (RoomId INT, Capacity INT);");
+			success &= this.sql("CREATE TABLE Book (BookingId INT UNSIGNED , Login VARCHAR(255), "
+				+ "DateBegin DATETIME, DateEnd DATETIME, RoomId INT UNSIGNED , TimeTableId INT UNSIGNED,"
+				+ " CONSTRAINT fk_RoomId FOREIGN KEY (TimeTableId) REFERENCES TimeTable(GroupId),"
+				+ " CONSTRAINT fk_RoomId FOREIGN KEY (RoomId) REFERENCES Room(RoomId));");
+			for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
+				success &= this.sql(entry.getValue().toSQL());
+			}		
+			for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+				success &= this.sql(entry.getValue().toSQL());
+			}
+		}
 		return success;
+	}
+	
+	public ResultSet query(String request) {
+       ResultSet result = null;
+       try {
+    	   result = this.stmt.executeQuery(request);
+       } 
+       catch (SQLException e) {
+           e.printStackTrace();
+           System.out.println("Error in the request : " + request);
+       }
+       return result;		
+	}
+	
+	public Boolean sql(String request) {
+		Boolean success;
+		try {
+			this.stmt.executeUpdate(request);
+			success = true;
+		}
+		catch (SQLException e) {
+			success = false;
+			e.printStackTrace();
+		}
+		return success;
+	}
+	
+	public Boolean containsRoom(int roomId) {
+		if(this.isSQL()) {
+			Boolean success;
+			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room WHERE RoomId = " + roomId);
+			try {
+				success = (result.getInt("number") == 0);
+			}
+			catch (SQLException e) {
+				success = false;
+			}
+			return success;
+		}
+		else {
+			return this.getRooms().containsKey(roomId);
+		}
+	}
+	
+	public Boolean checkRoom(int key, int roomId, int capacity) {
+		if(this.isSQL()) {
+			Boolean success;
+			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room WHERE RoomId = " + roomId + " AND Capacity = " + capacity);
+			try {
+				success = (result.getInt("number") > 0);
+			}
+			catch (SQLException e) {
+				success = false;
+			}
+			return success;			
+		}
+		else {
+			if(this.containsRoom(key)) {
+				Room room = this.getRooms().get(key);
+				return (room.getId() == roomId && room.getCapacity() == capacity);
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	
+	public int getRoomsSize() {
+		if(this.isSQL()) {
+			int size;
+			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room");
+			try {
+				size = result.getInt("number");
+			}
+			catch (SQLException e) {
+				size = 0;
+			}
+			return size;		
+		}
+		else {
+			return this.getRooms().size();
+		}
+	}
+
+	public Boolean containsTimeTable(int timeTableId) {
+		if(this.isSQL()) {
+			Boolean success;
+			ResultSet result = this.query("SELECT COUNT(*) as number FROM TimeTable WHERE GroupId = " + timeTableId);
+			try {
+				success = (result.getInt("number") == 0);
+			}
+			catch (SQLException e) {
+				success = false;
+			}
+			return success;
+		}
+		else {
+			return this.getTimeTables().containsKey(timeTableId);
+		}
+	}
+
+	public int getTimeTablesSize() {
+		if(this.isSQL()) {
+			int size;
+			ResultSet result = this.query("SELECT COUNT(*) as number FROM TimeTable");
+			try {
+				size = result.getInt("number");
+			}
+			catch (SQLException e) {
+				size = 0;
+			}
+			return size;		
+		}
+		else {
+			return this.getTimeTables().size();
+		}
 	}
 
 	/**
@@ -160,10 +410,16 @@ public class TimeTableDB {
 	 */
 	public String getTeacherLogin(int timeTableId, int bookId) {
 		String teacherLogin = "";
-		if(this.getTimeTables().containsKey(timeTableId)) {
-			Book booking = this.getTimeTables().get(timeTableId).getBook(bookId);
-			if(booking != null) {
-				teacherLogin = booking.getTeacherLogin();
+		if(this.isSQL()) {
+			ResultSet resultSet = this.query("SELECT login FROM Book WHERE BookingId = " + bookId);
+			System.out.println(resultSet);
+		}
+		else {
+			if(this.getTimeTables().containsKey(timeTableId)) {
+				Book booking = this.getTimeTables().get(timeTableId).getBook(bookId);
+				if(booking != null) {
+					teacherLogin = booking.getTeacherLogin();
+				}
 			}
 		}
 		return teacherLogin;
@@ -245,16 +501,28 @@ public class TimeTableDB {
 	 * @param roomId (Integer)
 	 * @param capacity (Integer)
 	 * @return Boolean (true if the room is correctly added, false if the room already exist)
+	 * @throws SQLException 
 	 */
-	public Boolean addRoom(Integer roomId, Integer capacity) {	
-		Boolean exist = (rooms.containsKey(roomId));
-		
-		if(!exist){
-			Room newRoom = new Room(roomId, capacity);
-			rooms.put(roomId, newRoom);
+	public Boolean addRoom(Integer roomId, Integer capacity) {
+		if(this.isSQL()) {
+			Boolean success;
+			if(this.containsRoom(roomId)) {
+				success = this.sql(Room.createSQL(roomId, capacity));
+			}
+			else {
+				success = false;
+			}
+			return success;
 		}
-		
-		return !exist;
+		else {
+			Boolean exist = this.containsRoom(roomId);
+			if(!exist){
+				Room newRoom = new Room(roomId, capacity);
+				this.rooms.put(roomId, newRoom);
+			}
+			
+			return !exist;
+		}
 	}
 
 	/**
@@ -265,7 +533,7 @@ public class TimeTableDB {
 	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
 	public Boolean removeRoom(Integer roomId) {
-		Boolean result = this.rooms.containsKey(roomId);
+		Boolean result = this.containsRoom(roomId);
 		if(result){
 			this.rooms.remove(roomId);
 		}
@@ -293,15 +561,27 @@ public class TimeTableDB {
 	 * @return 
 	 */
 	public Boolean addTimeTable(int timeTableId) {
-		Boolean success;
-		if(this.getTimeTables().containsKey(timeTableId)) {
-			success = false;
+		if(this.isSQL()) {
+			Boolean success;
+			if(this.containsTimeTable(timeTableId)) {
+				success = this.sql(TimeTable.createSQL(timeTableId));
+			}
+			else {
+				success = false;
+			}
+			return success;			
 		}
 		else {
-			success = true;
-			this.getTimeTables().put(timeTableId, new TimeTable(timeTableId));
+			Boolean success;
+			if(this.getTimeTables().containsKey(timeTableId)) {
+				success = false;
+			}
+			else {
+				success = true;
+				this.getTimeTables().put(timeTableId, new TimeTable(timeTableId));
+			}
+			return success;
 		}
-		return success;
 	}
 
 	/**

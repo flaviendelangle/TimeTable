@@ -3,6 +3,8 @@
  *******************************************************************************/
 package timeTableModel;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,12 +55,7 @@ public class TimeTable {
 	 * @return id 
 	 */
 	public int getId() {
-		if(storage.isSQL()) {
-			return 0;
-		}
-		else {
-			return this.id;
-		}
+		return this.id;
 	}
 
 	/**
@@ -205,23 +202,44 @@ public class TimeTable {
 	}
 
 	/**
+	 * Returns a SQL request to create this TimeTable in the database
+	 * @return timeTableSQL
+	 */
+	public String toSQL() {
+		String timeTableSQL = TimeTable.createSQL(this.getId());
+		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
+			timeTableSQL += entry.getValue().toSQL(this.getId());
+		}
+		return timeTableSQL;
+	}
+
+	/**
+	 * Return a SQL request to create a new TimeTable in the database
+	 * @param timeTableId
+	 * @return timeTableSQL
+	 */
+	public static String createSQL(int timeTableId) {
+		String timeTableSQL = "INSERT INTO TimeTable (GroupId) VALUES(" + timeTableId + ");";
+		return timeTableSQL;
+	}
+	
+
+	/**
 	 * Generate a MAP of TimeTable objects from a XML representation
 	 * @param timeTableListXML
 	 * @return timeTables
 	 */
-	public static Map<Integer, TimeTable> parseXML(Element timeTableListXML, Map<Integer, Room>rooms) {
+	public static void parseXML(Element timeTableListXML, Map<Integer, TimeTable>timeTables, Map<Integer, Room>rooms) {
 		List<Element> timeTablesXML = timeTableListXML.getChildren("TimeTable");
 		Iterator<Element> itTimeTable = timeTablesXML.iterator();
-		Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();
 		
 		while(itTimeTable.hasNext()) {
 			Element timeTable = (Element)itTimeTable.next();
 			int timeTableId = Integer.parseInt(timeTable.getChildText("GroupId"));
-			Map<Integer,Book> books = Book.parseXML(timeTable.getChild("Books"), rooms);
+			Map<Integer,Book> books = new HashMap<Integer, Book>();
+			Book.parseXML(timeTable.getChild("Books"), books, rooms);
 			timeTables.put(timeTableId, new TimeTable(timeTableId, books));
 		}
-		
-		return timeTables;
 	}
 
 }

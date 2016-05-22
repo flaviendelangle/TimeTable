@@ -78,7 +78,7 @@ public class Room {
 	}	
 
 	/**
-	 * Return the XML representation of the room
+	 * Returns the XML representation of the room
 	 * @return roomXML 
 	 */
 	public Element toXML() {
@@ -96,14 +96,32 @@ public class Room {
 	}
 	
 	/**
+	 * Returns a SQL request to create this Room in the database
+	 * @return roomSQL
+	 */
+	public String toSQL() {
+		return Room.createSQL(this.getId(), this.getCapacity());
+	}
+	
+	/**
+	 * Return a SQL request to create a new Room in the database
+	 * @param roomId
+	 * @param capacity
+	 * @return roomSQL
+	 */
+	public static String createSQL(int roomId, int capacity) {
+		String roomSQL = "INSERT INTO Room (RoomId, Capacity) VALUES(" + roomId + "," + capacity + ");";
+		return roomSQL;
+	}
+	
+	/**
 	 * Generate a MAP of Room objects from a XML representation
 	 * @param roomListXML
 	 * @return rooms
 	 */
-	public static Map<Integer, Room> parseXML(Element roomListXML) {
+	public static void parseXML(Element roomListXML, Map<Integer, Room> rooms) {
 		List<Element> roomsXML = roomListXML.getChildren("Room");
 		Iterator<Element> itRooms = roomsXML.iterator();
-		Map<Integer, Room> rooms = new HashMap<Integer, Room>();
 		
 		while(itRooms.hasNext()) {
 			Element room = (Element)itRooms.next();
@@ -111,8 +129,6 @@ public class Room {
 			int capacity = Integer.parseInt(room.getChildText("Capacity"));
 			rooms.put(roomId, new Room(roomId, capacity));
 		}
-		
-		return rooms;
 	}
 
 }
