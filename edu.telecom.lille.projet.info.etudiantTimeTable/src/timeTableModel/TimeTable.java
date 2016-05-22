@@ -6,6 +6,7 @@ package timeTableModel;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,14 +33,19 @@ public class TimeTable {
 	/**
 	 * Map interface containing all the rooms related to the timetable.
 	 */
-	private Map<Integer,Reservation> reservations;
+	private Map<Integer,Book> books;
 	
 	/**
 	 * The constructor.
 	 */
-	public TimeTable(int timeTableId, Map<Integer,Reservation> reservations) {
+	public TimeTable(int timeTableId, Map<Integer,Book> books) {
 		this.setId(timeTableId);
-		this.setReservations(reservations);
+		this.setBooks(books);
+	}
+
+	public TimeTable(int timeTableId) {
+		this.setId(timeTableId);
+		this.setBooks(new HashMap<Integer, Book>());
 	}
 
 	/**
@@ -47,7 +53,12 @@ public class TimeTable {
 	 * @return id 
 	 */
 	public int getId() {
-		return this.id;
+		if(storage.isSQL()) {
+			return 0;
+		}
+		else {
+			return this.id;
+		}
 	}
 
 	/**
@@ -59,33 +70,33 @@ public class TimeTable {
 	}
 
 	/**
-	 * Returns the reservations linked to this timetable.
+	 * Returns the booking linked to this timetable.
 	 * @return groupId 
 	 */
-	public Map<Integer,Reservation> getReservations() {
-		return this.reservations;
+	public Map<Integer,Book> getBooks() {
+		return this.books;
 	}
 
 	/**
-	 * Update the reservations linked to this timetable. 
+	 * Update the booking linked to this timetable. 
 	 * @param newGroupId 
 	 */
-	public void setReservations(Map<Integer,Reservation> newReservations) {
-		this.reservations = newReservations;
+	public void setBooks(Map<Integer,Book> newBooks) {
+		this.books = newBooks;
 	}
 	
 	/**
-	 * Returns the reservation which have the correct identifier
+	 * Returns the booking which have the correct identifier
 	 * @param bookId
-	 * @return reservation
+	 * @return booking
 	 */
-	public Reservation getBook(int bookId) {
-		return this.getReservations().get(bookId);
+	public Book getBook(int bookId) {
+		return this.getBooks().get(bookId);
 	}
 
 	/**
-	 * Add a reservation to this timetable.
-	 * Check if the reservation is possible by checking the dates of every other reservation in this room 
+	 * Add a booking to this timetable.
+	 * Check if the booking is possible by checking the dates of every other booking in this room 
 	 * @param bookingId
 	 * @param teacherLogin
 	 * @param dateBegin
@@ -94,27 +105,27 @@ public class TimeTable {
 	 * @return success
 	 */
 	public Boolean addBooking(int bookingId, String teacherLogin, Date dateBegin, Date dateEnd, Room room) {
-		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
-			Reservation reservation = entry.getValue();
-			if(reservation.getRoom().getId() == room.getId()) {
-				if(dateEnd.after(reservation.getDateBegin()) || dateBegin.before(reservation.getDateEnd())) {
+		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
+			Book book = entry.getValue();
+			if(book.getRoom().getId() == room.getId()) {
+				if(dateEnd.after(book.getDateBegin()) || dateBegin.before(book.getDateEnd())) {
 					return false;
 				}
 			}
 		}
-		Reservation reservation = new Reservation(bookingId, room, teacherLogin, dateBegin, dateEnd);
-		this.getReservations().put(bookingId, reservation);
+		Book book = new Book(bookingId, room, teacherLogin, dateBegin, dateEnd);
+		this.getBooks().put(bookingId, book);
 		return true;	
 	}
 
 	/**
-	 * Remove a reservation from this timetable
+	 * Remove a booking from this timetable
 	 * @param bookId
 	 * @return success
 	 */
 	public Boolean removeBook(int bookId) {
-		if(this.getReservations().containsKey(bookId)) {
-			this.getReservations().remove(bookId);
+		if(this.getBooks().containsKey(bookId)) {
+			this.getBooks().remove(bookId);
 			return true;
 		}
 		else {
@@ -123,14 +134,14 @@ public class TimeTable {
 	}
 	
 	/**
-	 * Return a table of strings containing the identifier of all the reservations linked to this timetable
+	 * Return a table of strings containing the identifier of all the bookings linked to this timetable
 	 * @return booksId
 	 */
 	public String[] getBookingsId() {
-		int length = this.getReservations().size();
+		int length = this.getBooks().size();
 		int i = 0;
 		String[] booksId = new String[length];
-		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
+		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
 			booksId[i] = String.valueOf(entry.getKey());
 			i++;
 		}
@@ -138,19 +149,31 @@ public class TimeTable {
 	}
 
 	/**
-	 * Return the maximum identifier of the reservations of this timetable
+	 * Return the maximum identifier of the bookings of this timetable
 	 * @return bookID
 	 */
 	public int getBookingsMaxId() {
 		int bookId;
-		if(this.getReservations().isEmpty()) {
+		if(this.getBooks().isEmpty()) {
 			bookId = -1;
 		}
 		else {
-			bookId = Collections.max(this.getReservations().keySet());
+			bookId = Collections.max(this.getBooks().keySet());
 		}
 		return bookId;
-	}	
+	}
+	
+	/**
+	 * Create two hash tables that contains all the beginning dates and ending dates of the bookings of this timetable
+	 * @param dateBegin
+	 * @param dateEnd
+	 */
+	public void getBookingsDate(Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
+		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
+			dateBegin.put(entry.getKey(), entry.getValue().getDateBegin());
+			dateEnd.put(entry.getKey(), entry.getValue().getDateEnd());
+		}		
+	}
 	
 	/**
 	 * Return the string representation of this timetable.
@@ -167,16 +190,16 @@ public class TimeTable {
 	 */
 	public Element toXML() {
 		Element timeTableXML = new Element("TimeTable");
-		Element timeTableId = new Element("timeTableId");
-		Element Reservations = new Element("Reservations");
+		Element timeTableId = new Element("GroupId");
+		Element Books = new Element("Books");
 		
 		timeTableId.setText(String.valueOf(this.getId()));
 		timeTableXML.addContent(timeTableId);
 		
-		for(Entry<Integer, Reservation> entry : this.getReservations().entrySet()) {
-			Reservations.addContent(entry.getValue().toXML());
+		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
+			Books.addContent(entry.getValue().toXML());
 		}
-		timeTableXML.addContent(Reservations);
+		timeTableXML.addContent(Books);
 		
 		return timeTableXML;
 	}
@@ -187,15 +210,15 @@ public class TimeTable {
 	 * @return timeTables
 	 */
 	public static Map<Integer, TimeTable> parseXML(Element timeTableListXML, Map<Integer, Room>rooms) {
-		List<Element> timeTablesXML = timeTableListXML.getChildren("Room");
+		List<Element> timeTablesXML = timeTableListXML.getChildren("TimeTable");
 		Iterator<Element> itTimeTable = timeTablesXML.iterator();
 		Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();
 		
 		while(itTimeTable.hasNext()) {
 			Element timeTable = (Element)itTimeTable.next();
-			int timeTableId = Integer.parseInt(timeTable.getChildText("roomId"));
-			Map<Integer,Reservation> reservations = Reservation.parseXML(timeTable.getChild("Reservations"), rooms);
-			timeTables.put(timeTableId, new TimeTable(timeTableId, reservations));
+			int timeTableId = Integer.parseInt(timeTable.getChildText("GroupId"));
+			Map<Integer,Book> books = Book.parseXML(timeTable.getChild("Books"), rooms);
+			timeTables.put(timeTableId, new TimeTable(timeTableId, books));
 		}
 		
 		return timeTables;

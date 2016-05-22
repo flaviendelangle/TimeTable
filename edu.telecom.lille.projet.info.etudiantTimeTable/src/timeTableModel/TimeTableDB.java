@@ -6,7 +6,7 @@ package timeTableModel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +26,7 @@ import timeTableModel.TimeTable;
  * @author Flavien DELANGLE and Marie PAYET
  */
 public class TimeTableDB {
+	
 	/**
 	 * List of all the timetables
 	 */
@@ -37,27 +38,71 @@ public class TimeTableDB {
 	private Map<Integer, Room> rooms;
 
 	/**
-	 * Description of the property file.
+	 * File where the program save all the data.
 	 */
-	private String file = "TimeTables.xml";
-
-
-	// Start of user code (user defined attributes for TimeTableDB)
-
-	// End of user code
+	private String file = "timeTableDB.xml";
 
 	/**
 	 * The constructor.
 	 */
-	public TimeTableDB() {
-		super();
+	public TimeTableDB(String file) {
+		this.setFile(file);
+		this.loadDB();
 	}
 
+	/**
+	 * Returns timeTables.
+	 * @return timeTables 
+	 */
+	public Map<Integer, TimeTable> getTimeTables() {
+		return this.timeTables;
+	}
+	
+	/**
+	 * Sets a value to attribute timeTables. 
+	 * @param newTimeTables 
+	 */
+	public void setTimeTables(Map<Integer, TimeTable> newTimeTables) {
+		this.timeTables = newTimeTables;
+	}
+
+	/**
+	 * Returns rooms.
+	 * @return rooms 
+	 */
+	public Map<Integer, Room> getRooms() {
+		return this.rooms;
+	}
+
+	/**
+	 * Sets a value to attribute file. 
+	 * @param newFile 
+	 */
+	public void setFile(String newFile) {
+		this.file = newFile;
+	}
+	
+	/**
+	 * Returns file.
+	 * @return file 
+	 */
+	public String getFile() {
+		return this.file;
+	}
+
+	/**
+	 * Sets a value to attribute rooms. 
+	 * @param newRooms 
+	 */
+	public void setRooms(Map<Integer, Room> newRooms) {
+		this.rooms = newRooms;
+	}	
+	
 	/**
 	 * Save the current state of the database into a XML file
 	 */
 	public boolean saveDB() {
-		Element rootXML = new Element("DataBase");
+		Element rootXML = new Element("TimeTablesDB");
 		Element rooms = new Element("Rooms");
 		Element timeTables = new Element("TimeTables");
 		
@@ -72,7 +117,7 @@ public class TimeTableDB {
 		Boolean success;
 		try {
 			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
-			xml.output(document, new FileOutputStream(this.file));
+			xml.output(document, new FileOutputStream(this.getFile()));
 			success = true;
 		}
 		catch(java.io.IOException e) {
@@ -90,7 +135,7 @@ public class TimeTableDB {
 		SAXBuilder sxb = new SAXBuilder();
 		Boolean success = false;;
 		try {
-			document = sxb.build(new File(this.file));
+			document = sxb.build(new File(this.getFile()));
 		}
 		catch(Exception e) {
 		}
@@ -108,7 +153,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Returns the login of the teacher of a given reservation.
+	 * Returns the login of the teacher of a given booking.
 	 * @param timeTableId 
 	 * @param bookId 
 	 * @return teacherLogin
@@ -116,9 +161,9 @@ public class TimeTableDB {
 	public String getTeacherLogin(int timeTableId, int bookId) {
 		String teacherLogin = "";
 		if(this.getTimeTables().containsKey(timeTableId)) {
-			Reservation reservation = this.getTimeTables().get(timeTableId).getBook(bookId);
-			if(reservation != null) {
-				teacherLogin = reservation.getTeacherLogin();
+			Book booking = this.getTimeTables().get(timeTableId).getBook(bookId);
+			if(booking != null) {
+				teacherLogin = booking.getTeacherLogin();
 			}
 		}
 		return teacherLogin;
@@ -131,11 +176,14 @@ public class TimeTableDB {
 	 * @return String array (content : ID of the rooms)
 	 */
 	public String[] roomsIdToString() {
-		Set<Integer> roomsIdToString;
-		
-		roomsIdToString = rooms.keySet(); // les clés sont les ID : on les récupère dans une liste
-		
-		return roomsIdToString.toArray(new String[roomsIdToString.size()]); //on transforme la liste en tableau
+		Set<Integer> roomsIdSet = this.rooms.keySet();
+		String[] roomsId = new String[roomsIdSet.size()];
+		int i = 0;
+		for (Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
+			roomsId[i] = String.valueOf(entry.getKey());
+			i++;
+		}
+		return roomsId;
 	}
 
 	/**
@@ -145,10 +193,10 @@ public class TimeTableDB {
 	 */
 	public String[] roomsToString() {
 		
-		String[] result = new String[rooms.size()];
+		String[] result = new String[this.rooms.size()];
 		int i = 0 ;
 		
-		for (Map.Entry<Integer, Room> entry : rooms.entrySet())
+		for (Map.Entry<Integer, Room> entry : this.rooms.entrySet())
 			{
 			result[i] =  entry.getValue().toString();
 			i++;
@@ -164,11 +212,14 @@ public class TimeTableDB {
 	 * @return String array (content : ID of the timeTable)
 	 */
 	public String[] timeTablesIDToString() {
-		Set<Integer> timeTableIdToString;
-		
-		timeTableIdToString = rooms.keySet(); 
-		
-		return timeTableIdToString.toArray(new String[timeTableIdToString.size()]); //on transforme la liste en tableau
+		Set<Integer> timeTablesIdSet = this.timeTables.keySet();
+		String[] timeTablesId = new String[timeTablesIdSet.size()];
+		int i = 0;
+		for (Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+			timeTablesId[i] = String.valueOf(entry.getKey());
+			i++;
+		}
+		return timeTablesId;
 	}
 
 	/**
@@ -179,11 +230,12 @@ public class TimeTableDB {
 	 * @return String array (content : booksId)
 	 */
 	public String[] booksIdToString(Integer timeTableId) {
-			TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
+		TimeTable timeTableResult = timeTables.get(timeTableId);
 
-			if(timeTableResult == null)return -1;
-			else { return timeTableResult.getBookingsId(); }
-
+		if(timeTableResult == null) {
+			return new String[0];
+		}
+		return timeTableResult.getBookingsId();
 	}
 
 	/**
@@ -195,15 +247,14 @@ public class TimeTableDB {
 	 * @return Boolean (true if the room is correctly added, false if the room already exist)
 	 */
 	public Boolean addRoom(Integer roomId, Integer capacity) {	
-		Boolean result;
-		result = !(rooms.containsKey(roomId));
+		Boolean exist = (rooms.containsKey(roomId));
 		
-		if(result){
+		if(!exist){
 			Room newRoom = new Room(roomId, capacity);
 			rooms.put(roomId, newRoom);
 		}
 		
-		return result;
+		return !exist;
 	}
 
 	/**
@@ -214,13 +265,10 @@ public class TimeTableDB {
 	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
 	public Boolean removeRoom(Integer roomId) {
-		Boolean result;
-		result = rooms.containsKey(roomId);
-		
+		Boolean result = this.rooms.containsKey(roomId);
 		if(result){
-			rooms.remove(roomId);
+			this.rooms.remove(roomId);
 		}
-		
 		return result;
 	}
 
@@ -245,10 +293,15 @@ public class TimeTableDB {
 	 * @return 
 	 */
 	public Boolean addTimeTable(int timeTableId) {
-		// Start of user code for method addTimeTable
-		Boolean addTimeTable = Boolean.FALSE;
-		return addTimeTable;
-		// End of user code
+		Boolean success;
+		if(this.getTimeTables().containsKey(timeTableId)) {
+			success = false;
+		}
+		else {
+			success = true;
+			this.getTimeTables().put(timeTableId, new TimeTable(timeTableId));
+		}
+		return success;
 	}
 
 	/**
@@ -257,15 +310,16 @@ public class TimeTableDB {
 	 * @return 
 	 */
 	public Boolean removeTimeTable(int timeTableId) {
-		// Start of user code for method removeTimeTable
-		Boolean removeTimeTable = Boolean.FALSE;
-		return removeTimeTable;
-		// End of user code
+		Boolean result = this.timeTables.containsKey(timeTableId);
+		if(result){
+			this.timeTables.remove(timeTableId);
+		}
+		return result;		
 	}
 
 	/**
-	 * Add a reservation to a given timetable.
-	 * Check if the reservation is possible by checking if :
+	 * Add a booking to a given timetable.
+	 * Check if the booking is possible by checking if :
 	 * 	- the timetable exists
 	 *  - the room exists
 	 * @param timeTableId 
@@ -293,11 +347,15 @@ public class TimeTableDB {
 	 * @param dateBegin 
 	 * @param dateEnd 
 	 */
-	public void getBookingsDate(Integer timeTableId, Date dateBegin, Date dateEnd) {
+	public void getBookingsDate(Integer timeTableId, Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
+		TimeTable timeTable = this.getTimeTables().get(timeTableId);
+		if(timeTable != null) {
+			timeTable.getBookingsDate(dateBegin, dateEnd);
+		}
 	}
 
 	/**
-	 * Remove a reservation from a given timetable.
+	 * Remove a booking from a given timetable.
 	 * @param timeTableId 
 	 * @param bookId 
 	 * @return success
@@ -314,7 +372,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Return the maximum identifier of the reservations of a given timetable.
+	 * Return the maximum identifier of the bookings of a given timetable.
 	 * @param timeTableId 
 	 * @return bookingsMaxId
 	 */
@@ -327,39 +385,6 @@ public class TimeTableDB {
 			bookingsMaxId = -1;
 		}
 		return bookingsMaxId;
-	}
-
-	/**
-	 * Returns timeTables.
-	 * @return timeTables 
-	 */
-	public Map<Integer, TimeTable> getTimeTables() {
-		return this.timeTables;
-	}
-
-	
-	/**
-	 * Sets a value to attribute timeTables. 
-	 * @param newTimeTables 
-	 */
-	public void setTimeTables(Map<Integer, TimeTable> newTimeTables) {
-		this.timeTables = newTimeTables;
-	}
-
-	/**
-	 * Returns rooms.
-	 * @return rooms 
-	 */
-	public Map<Integer, Room> getRooms() {
-		return this.rooms;
-	}
-
-	/**
-	 * Sets a value to attribute rooms. 
-	 * @param newRooms 
-	 */
-	public void setRooms(Map<Integer, Room> newRooms) {
-		this.rooms = newRooms;
 	}
 
 }

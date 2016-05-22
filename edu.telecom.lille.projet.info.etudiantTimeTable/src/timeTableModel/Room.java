@@ -83,8 +83,8 @@ public class Room {
 	 */
 	public Element toXML() {
 		Element roomXML = new Element("Room");
-		Element roomId = new Element("roomId");
-		Element capacity = new Element("capacity");
+		Element roomId = new Element("RoomId");
+		Element capacity = new Element("Capacity");
 		
 		roomId.setText(String.valueOf(this.getId()));
 		capacity.setText(String.valueOf(this.getCapacity()));
@@ -107,8 +107,8 @@ public class Room {
 		
 		while(itRooms.hasNext()) {
 			Element room = (Element)itRooms.next();
-			int roomId = Integer.parseInt(room.getChildText("roomId"));
-			int capacity = Integer.parseInt(room.getChildText("capacity"));
+			int roomId = Integer.parseInt(room.getChildText("RoomId"));
+			int capacity = Integer.parseInt(room.getChildText("Capacity"));
 			rooms.put(roomId, new Room(roomId, capacity));
 		}
 		
