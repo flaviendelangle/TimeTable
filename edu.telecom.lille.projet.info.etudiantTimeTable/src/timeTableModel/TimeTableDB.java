@@ -3,20 +3,24 @@
  *******************************************************************************/
 package timeTableModel;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -49,16 +53,6 @@ public class TimeTableDB {
 	 * File where the program save all the data if the SQL mode is activated.
 	 */
 	private static String fileSQL = "timeTableDB.db";
-
-	/**
-	 * Database connection object
-	 */
-	public Connection connection;
-	
-	/**
-	 * Statement of the database connection
-	 */
-	public Statement stmt;
 
 	/**
 	 * List of all the timetables
@@ -156,7 +150,7 @@ public class TimeTableDB {
 	 */
 	public boolean saveDB() {
 		if(this.isSQL()) {
-			return true;
+			return this.closeSQL();
 		}
 		else {
 			return this.saveXML(this.timeTables, this.rooms);
@@ -249,6 +243,24 @@ public class TimeTableDB {
 	}
 	
 	/**
+	 * Close the connection and the statement with the SQLite database
+	 */
+	public Boolean closeSQL() {
+		Boolean success;
+		try {
+			ORM.stmt.close();
+			ORM.connection.close();
+			ORM.stmt = null;
+			ORM.connection = null;
+			success = true;
+		}
+		catch(Exception e) {
+			success = false;
+		}
+		return success;
+	}
+	
+	/**
 	 * Create a SQLite database with the data of a XML database
 	 * @throws SQLException 
 	 */
@@ -265,8 +277,12 @@ public class TimeTableDB {
 			}
 			try {
 				Class.forName("org.sqlite.JDBC");
-				this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.getFileSQL());
-				this.stmt = this.connection.createStatement();
+				if(ORM.connection == null) {
+					ORM.connection = DriverManager.getConnection("jdbc:sqlite:" + this.getFileSQL());
+				}
+				if(ORM.stmt == null) {
+					ORM.stmt = ORM.connection.createStatement();
+				}
 			}
 			catch(Exception e) {
 			}
@@ -289,7 +305,7 @@ public class TimeTableDB {
 	public ResultSet query(String request) {
        ResultSet result = null;
        try {
-    	   result = this.stmt.executeQuery(request);
+    	   result = ORM.stmt.executeQuery(request);
        } 
        catch (SQLException e) {
            e.printStackTrace();
@@ -301,7 +317,7 @@ public class TimeTableDB {
 	public Boolean sql(String request) {
 		Boolean success;
 		try {
-			this.stmt.executeUpdate(request);
+			ORM.stmt.executeUpdate(request);
 			success = true;
 		}
 		catch (SQLException e) {
@@ -313,15 +329,7 @@ public class TimeTableDB {
 	
 	public Boolean containsRoom(int roomId) {
 		if(this.isSQL()) {
-			Boolean success;
-			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room WHERE RoomId = " + roomId);
-			try {
-				success = (result.getInt("number") == 0);
-			}
-			catch (SQLException e) {
-				success = false;
-			}
-			return success;
+			return Room.objects.exist(roomId, false);
 		}
 		else {
 			return this.getRooms().containsKey(roomId);
@@ -330,15 +338,7 @@ public class TimeTableDB {
 	
 	public Boolean checkRoom(int key, int roomId, int capacity) {
 		if(this.isSQL()) {
-			Boolean success;
-			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room WHERE RoomId = " + roomId + " AND Capacity = " + capacity);
-			try {
-				success = (result.getInt("number") > 0);
-			}
-			catch (SQLException e) {
-				success = false;
-			}
-			return success;			
+			return Room.objects.exist(roomId, capacity, false);			
 		}
 		else {
 			if(this.containsRoom(key)) {
@@ -353,15 +353,7 @@ public class TimeTableDB {
 	
 	public int getRoomsSize() {
 		if(this.isSQL()) {
-			int size;
-			ResultSet result = this.query("SELECT COUNT(*) as number FROM Room");
-			try {
-				size = result.getInt("number");
-			}
-			catch (SQLException e) {
-				size = 0;
-			}
-			return size;		
+			return Room.objects.length();		
 		}
 		else {
 			return this.getRooms().size();
@@ -370,15 +362,7 @@ public class TimeTableDB {
 
 	public Boolean containsTimeTable(int timeTableId) {
 		if(this.isSQL()) {
-			Boolean success;
-			ResultSet result = this.query("SELECT COUNT(*) as number FROM TimeTable WHERE GroupId = " + timeTableId);
-			try {
-				success = (result.getInt("number") == 0);
-			}
-			catch (SQLException e) {
-				success = false;
-			}
-			return success;
+			return TimeTable.objects.exist(timeTableId, false);
 		}
 		else {
 			return this.getTimeTables().containsKey(timeTableId);
@@ -387,18 +371,54 @@ public class TimeTableDB {
 
 	public int getTimeTablesSize() {
 		if(this.isSQL()) {
-			int size;
-			ResultSet result = this.query("SELECT COUNT(*) as number FROM TimeTable");
-			try {
-				size = result.getInt("number");
-			}
-			catch (SQLException e) {
-				size = 0;
-			}
-			return size;		
+			return TimeTable.objects.length();		
 		}
 		else {
 			return this.getTimeTables().size();
+		}
+	}
+	
+	public Boolean containsBook(int timeTableId, int bookingId) {
+		if(this.isSQL()) {
+			return Book.objects.exist(timeTableId, bookingId, false);
+		}
+		else {
+			if(this.getTimeTables().containsKey(timeTableId)) {
+				return this.getTimeTables().get(timeTableId).getBooks().containsKey(bookingId);
+			}
+			else {
+				return false;
+			}
+		}			
+	}
+	
+	public Boolean containsBook(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
+		if(this.isSQL()) {
+			return Book.objects.exist(timeTableId, bookingId, login, dateBegin, dateEnd, roomId, false);
+		}
+		else {
+			if(this.getTimeTables().get(timeTableId).getBooks().containsKey(bookingId)) {
+				Book book = this.getTimeTables().get(timeTableId).getBooks().get(bookingId);
+				Boolean success = true;
+				success &= (book.getId() == bookingId);
+				success &= (book.getRoom().getId() == roomId);
+				success &= (book.getTeacherLogin() == login);
+				success &= (book.getDateBegin() == dateBegin);
+				success &= (book.getDateEnd() == dateEnd);
+				return success;
+			}
+			else {
+				return false;
+			}
+		}		
+	}
+
+	public int getBooksSize(int timeTableId) {
+		if(this.isSQL()) {
+			return Book.objects.length(timeTableId);		
+		}
+		else {
+			return this.getTimeTables().get(timeTableId).getBooks().size();
 		}
 	}
 
@@ -411,8 +431,12 @@ public class TimeTableDB {
 	public String getTeacherLogin(int timeTableId, int bookId) {
 		String teacherLogin = "";
 		if(this.isSQL()) {
-			ResultSet resultSet = this.query("SELECT login FROM Book WHERE BookingId = " + bookId);
-			System.out.println(resultSet);
+			try {
+				teacherLogin = Book.objects.get(timeTableId, bookId).getString("login");
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		else {
 			if(this.getTimeTables().containsKey(timeTableId)) {
@@ -432,14 +456,29 @@ public class TimeTableDB {
 	 * @return String array (content : ID of the rooms)
 	 */
 	public String[] roomsIdToString() {
-		Set<Integer> roomsIdSet = this.rooms.keySet();
-		String[] roomsId = new String[roomsIdSet.size()];
-		int i = 0;
-		for (Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
-			roomsId[i] = String.valueOf(entry.getKey());
-			i++;
+		if(this.isSQL()) {
+			List<String> roomsIdList = new ArrayList<String>();
+			ResultSet results = Room.objects.all();
+			try {
+				while(results.next()) {
+					roomsIdList.add(results.getString("RoomId"));
+				}
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return roomsIdList.toArray(new String[roomsIdList.size()]);
 		}
-		return roomsId;
+		else {
+			Set<Integer> roomsIdSet = this.rooms.keySet();
+			String[] roomsId = new String[roomsIdSet.size()];
+			int i = 0;
+			for (Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
+				roomsId[i] = String.valueOf(entry.getKey());
+				i++;
+			}
+			return roomsId;
+		}
 	}
 
 	/**
@@ -448,17 +487,31 @@ public class TimeTableDB {
 	 * @return String array (content : ID of the rooms + capacity)
 	 */
 	public String[] roomsToString() {
-		
-		String[] result = new String[this.rooms.size()];
-		int i = 0 ;
-		
-		for (Map.Entry<Integer, Room> entry : this.rooms.entrySet())
-			{
-			result[i] =  entry.getValue().toString();
-			i++;
+		if(this.isSQL()) {
+			List<String> roomsList = new ArrayList<String>();
+			ResultSet results = Room.objects.all();
+			try {
+				while(results.next()) {
+					roomsList.add(Room.stringify(results.getInt("RoomId"), results.getInt("Capacity")));
+				}
 			}
-		
-		return result; 
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return roomsList.toArray(new String[roomsList.size()]);			
+		}
+		else {
+			String[] result = new String[this.rooms.size()];
+			int i = 0 ;
+			
+			for (Map.Entry<Integer, Room> entry : this.rooms.entrySet())
+				{
+				result[i] =  entry.getValue().toString();
+				i++;
+				}
+			
+			return result; 
+		}
 	}
 
 	/**
@@ -468,14 +521,29 @@ public class TimeTableDB {
 	 * @return String array (content : ID of the timeTable)
 	 */
 	public String[] timeTablesIDToString() {
-		Set<Integer> timeTablesIdSet = this.timeTables.keySet();
-		String[] timeTablesId = new String[timeTablesIdSet.size()];
-		int i = 0;
-		for (Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
-			timeTablesId[i] = String.valueOf(entry.getKey());
-			i++;
+		if(this.isSQL()) {
+			List<String> timeTableIdList = new ArrayList<String>();
+			ResultSet results = TimeTable.objects.all();
+			try {
+				while(results.next()) {
+					timeTableIdList.add(results.getString("GroupId"));
+				}
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return timeTableIdList.toArray(new String[timeTableIdList.size()]);
 		}
-		return timeTablesId;
+		else {
+			Set<Integer> timeTablesIdSet = this.timeTables.keySet();
+			String[] timeTablesId = new String[timeTablesIdSet.size()];
+			int i = 0;
+			for (Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+				timeTablesId[i] = String.valueOf(entry.getKey());
+				i++;
+			}
+			return timeTablesId;
+		}
 	}
 
 	/**
@@ -486,12 +554,26 @@ public class TimeTableDB {
 	 * @return String array (content : booksId)
 	 */
 	public String[] booksIdToString(Integer timeTableId) {
-		TimeTable timeTableResult = timeTables.get(timeTableId);
-
-		if(timeTableResult == null) {
-			return new String[0];
+		if(this.isSQL()) {
+			List<String> bookIdList = new ArrayList<String>();
+			ResultSet results = Book.objects.get(timeTableId);
+			try {
+				while(results.next()) {
+					bookIdList.add(results.getString("BookingId"));
+				}
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return bookIdList.toArray(new String[bookIdList.size()]);			
 		}
-		return timeTableResult.getBookingsId();
+		else {
+			TimeTable timeTableResult = timeTables.get(timeTableId);
+			if(timeTableResult == null) {
+				return new String[0];
+			}
+			return timeTableResult.getBookingsId();
+		}
 	}
 
 	/**
@@ -506,8 +588,8 @@ public class TimeTableDB {
 	public Boolean addRoom(Integer roomId, Integer capacity) {
 		if(this.isSQL()) {
 			Boolean success;
-			if(this.containsRoom(roomId)) {
-				success = this.sql(Room.createSQL(roomId, capacity));
+			if(!this.containsRoom(roomId)) {
+				success = Room.objects.create(roomId, capacity);
 			}
 			else {
 				success = false;
@@ -532,12 +614,17 @@ public class TimeTableDB {
 	 * @param roomId (Integer)
 	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
-	public Boolean removeRoom(Integer roomId) {
-		Boolean result = this.containsRoom(roomId);
-		if(result){
-			this.rooms.remove(roomId);
+	public Boolean removeRoom(int roomId) {
+		if(this.isSQL()) {
+			return Room.objects.delete(roomId);
 		}
-		return result;
+		else {
+			Boolean result = this.containsRoom(roomId);
+			if(result){
+				this.rooms.remove(roomId);
+			}
+			return result;
+		}
 	}
 
 	/**
@@ -548,11 +635,27 @@ public class TimeTableDB {
 	 * @param bookId (Integer)
 	 * @return Id of the Room we search (Integer)
 	 */
-	public Integer getRoom(Integer timeTableId, Integer bookId) {
-		TimeTable timeTableResult = timeTables.get(timeTableId); // récupère le timetable correspondant à l'ID recherché
-
-		if(timeTableResult == null)return -1;
-		else {return timeTableResult.getBook(bookId).getRoom().getId();}
+	public Integer getRoom(int timeTableId, int bookId) {
+		if(this.isSQL()) {
+			int result;
+			try {
+				result = Book.objects.get(timeTableId, bookId).getInt("RoomId");
+			} 
+			catch (SQLException e) {
+				result = -1;
+				e.printStackTrace();
+			}
+			return result;
+		}
+		else {
+			TimeTable timeTableResult = timeTables.get(timeTableId);
+			if(timeTableResult == null) {
+				return -1;
+			}
+			else {
+				return timeTableResult.getBook(bookId).getRoom().getId();
+			}			
+		}
 	}
 
 	/**
@@ -563,8 +666,8 @@ public class TimeTableDB {
 	public Boolean addTimeTable(int timeTableId) {
 		if(this.isSQL()) {
 			Boolean success;
-			if(this.containsTimeTable(timeTableId)) {
-				success = this.sql(TimeTable.createSQL(timeTableId));
+			if(!this.containsTimeTable(timeTableId)) {
+				success = TimeTable.objects.create(timeTableId);
 			}
 			else {
 				success = false;
@@ -590,11 +693,16 @@ public class TimeTableDB {
 	 * @return 
 	 */
 	public Boolean removeTimeTable(int timeTableId) {
-		Boolean result = this.timeTables.containsKey(timeTableId);
-		if(result){
-			this.timeTables.remove(timeTableId);
+		if(this.isSQL()) {
+			return TimeTable.objects.delete(timeTableId);
 		}
-		return result;		
+		else {
+			Boolean result = this.timeTables.containsKey(timeTableId);
+			if(result){
+				this.timeTables.remove(timeTableId);
+			}
+			return result;		
+		}
 	}
 
 	/**
@@ -610,14 +718,26 @@ public class TimeTableDB {
 	 * @param roomId 
 	 * @return success
 	 */
-	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, Integer roomId) {
-		if(this.getRooms().containsKey(roomId) && this.getTimeTables().containsKey(timeTableId)) {
-			TimeTable timetable = this.getTimeTables().get(timeTableId); 
-			Room room = this.getRooms().get(roomId);
-			return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
+	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
+		if(this.isSQL()) {
+			Boolean success;
+			if(!this.containsBook(timeTableId, bookingId)) {
+				success = Book.objects.create(timeTableId, bookingId, login, dateBegin, dateEnd, roomId);
+			}
+			else {
+				success = false;
+			}
+			return success;					
 		}
 		else {
-			return false;
+			if(this.getRooms().containsKey(roomId) && this.getTimeTables().containsKey(timeTableId)) {
+				TimeTable timetable = this.getTimeTables().get(timeTableId); 
+				Room room = this.getRooms().get(roomId);
+				return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
+			}
+			else {
+				return false;
+			}
 		}
 	}
 
@@ -627,10 +747,24 @@ public class TimeTableDB {
 	 * @param dateBegin 
 	 * @param dateEnd 
 	 */
-	public void getBookingsDate(Integer timeTableId, Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
-		TimeTable timeTable = this.getTimeTables().get(timeTableId);
-		if(timeTable != null) {
-			timeTable.getBookingsDate(dateBegin, dateEnd);
+	public void getBookingsDate(int timeTableId, Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
+		if(this.isSQL()) {
+			SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			ResultSet books = Book.objects.get(timeTableId);
+			try {
+				while(books.next()) {
+					dateBegin.put(books.getInt("BookingId"), dateformat.parse(books.getString("DateBegin")));
+					dateEnd.put(books.getInt("BookingId"), dateformat.parse(books.getString("DateEnd")));
+				}
+			}
+			catch (Exception e) {
+			}
+		}
+		else {
+			TimeTable timeTable = this.getTimeTables().get(timeTableId);
+			if(timeTable != null) {
+				timeTable.getBookingsDate(dateBegin, dateEnd);
+			}
 		}
 	}
 
@@ -640,15 +774,20 @@ public class TimeTableDB {
 	 * @param bookId 
 	 * @return success
 	 */
-	public Boolean removeBook(Integer timeTableId, Integer bookId) {
-		Boolean success;
-		if(this.getTimeTables().containsKey(timeTableId)) {
-			success = this.getTimeTables().get(timeTableId).removeBook(bookId);
+	public Boolean removeBook(int timeTableId, int bookId) {
+		if(this.isSQL()) {
+			return Book.objects.delete(timeTableId, bookId);
 		}
 		else {
-			success = false;
+			Boolean success;
+			if(this.getTimeTables().containsKey(timeTableId)) {
+				success = this.getTimeTables().get(timeTableId).removeBook(bookId);
+			}
+			else {
+				success = false;
+			}
+			return success;
 		}
-		return success;
 	}
 
 	/**
@@ -656,15 +795,33 @@ public class TimeTableDB {
 	 * @param timeTableId 
 	 * @return bookingsMaxId
 	 */
-	public int getBookingsMaxId(Integer timeTableId) {
-		int bookingsMaxId;
-		if(this.getTimeTables().containsKey(timeTableId)) {
-			bookingsMaxId = this.getTimeTables().get(timeTableId).getBookingsMaxId();
+	public int getBookingsMaxId(int timeTableId) {
+		if(this.isSQL()) {
+			int bookingsMaxId = -1;
+			ResultSet books = Book.objects.get(timeTableId);
+			try {
+				while(books.next()) {
+					int temp = books.getInt("BookingId");
+					if(bookingsMaxId < temp) {
+						bookingsMaxId = temp;
+					}
+				}
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return bookingsMaxId;
 		}
 		else {
-			bookingsMaxId = -1;
+			int bookingsMaxId;
+			if(this.getTimeTables().containsKey(timeTableId)) {
+				bookingsMaxId = this.getTimeTables().get(timeTableId).getBookingsMaxId();
+			}
+			else {
+				bookingsMaxId = -1;
+			}
+			return bookingsMaxId;
 		}
-		return bookingsMaxId;
 	}
 
 }

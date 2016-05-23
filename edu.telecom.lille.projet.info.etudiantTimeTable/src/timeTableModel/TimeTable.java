@@ -38,6 +38,11 @@ public class TimeTable {
 	private Map<Integer,Book> books;
 	
 	/**
+	 * Simple ORM for the TimeTable Object
+	 */
+	public static TimeTableORM objects = new TimeTableORM();
+	
+	/**
 	 * The constructor.
 	 */
 	public TimeTable(int timeTableId, Map<Integer,Book> books) {

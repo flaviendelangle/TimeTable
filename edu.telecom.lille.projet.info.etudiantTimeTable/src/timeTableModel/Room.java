@@ -27,6 +27,11 @@ public class Room {
 	 * Capacity of this room.
 	 */
 	private int capacity = 0;
+	
+	/**
+	 * Simple ORM for the Room Object
+	 */
+	public static RoomORM objects = new RoomORM();
 
 	/**
 	 * The constructor.
@@ -73,9 +78,17 @@ public class Room {
 	 * @return toString
 	 */
 	public String toString() {
-		String toString = "Room n°" + this.getId() + " (" + this.getCapacity() + " student)";
-		return toString;
-	}	
+		return Room.stringify(this.getId(), this.getCapacity());
+	}
+	
+	/**
+	 * Return a string representation of a Room (static version)
+	 * @return toString
+	 */
+	public static String stringify(int roomId, int capacity) {
+		String toString = "Room n°" + roomId + " (" + capacity + " student)";
+		return toString;		
+	}
 
 	/**
 	 * Returns the XML representation of the room

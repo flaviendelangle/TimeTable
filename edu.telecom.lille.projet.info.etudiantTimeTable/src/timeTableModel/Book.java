@@ -47,6 +47,11 @@ public class Book {
 	private Date dateEnd = new Date();
 	
 	/**
+	 * Simple ORM for the Book Object
+	 */
+	public static BookORM objects = new BookORM();	
+	
+	/**
 	 * The constructor.
 	 */
 	public Book(int id, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {

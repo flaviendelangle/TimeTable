@@ -62,6 +62,7 @@ public class TimeTableControllerTest {
 
 	@After
 	public void tearDown() throws Exception {
+		this.controller.tTDB.saveDB();
 	}
 	/*
 	@Test
@@ -101,7 +102,7 @@ public class TimeTableControllerTest {
 		String login = this.controller.getTeacherLogin(this.timeTableId, bookId);
 		assertEquals(login, this.login);
 	}
-	/*
+	
 	@Test
 	public void testRoomsIdToString() {
 		this.testAddRoom();
@@ -132,14 +133,14 @@ public class TimeTableControllerTest {
 		assertEquals(books.length, 4);
 		assertEquals(books[1], "1");
 	}
-	*/
+	
 	@Test
 	public void testAddRoom() {
 		this.controller.addRoom(this.roomId, 50);
 		assertEquals(this.controller.tTDB.getRoomsSize(), 4);
 		assertTrue(this.controller.tTDB.checkRoom(this.roomId, this.roomId, 50));
 	}
-	/*
+	
 	@Test
 	public void testRemoveRoom() {
 		this.testAddRoom();
@@ -153,14 +154,14 @@ public class TimeTableControllerTest {
 		int room = this.controller.getRoom(1, 1);
 		assertEquals(room, 1);
 	}
-	*/
+	
 	@Test
 	public void testAddTimeTable() {
 		this.controller.addTimeTable(this.timeTableId);
 		assertEquals(this.controller.tTDB.getTimeTablesSize(), 2);
 		assertTrue(this.controller.tTDB.containsTimeTable(2));
 	}
-	/*
+
 	@Test
 	public void testRemoveTimeTable() {
 		this.testAddTimeTable();
@@ -168,7 +169,7 @@ public class TimeTableControllerTest {
 		assertTrue(success);
 		assertEquals(this.controller.tTDB.getTimeTables().size(), 1);
 	}
-	*/
+
 	@Test
 	public void testAddBooking() throws ParseException {
 		this.testAddRoom();
@@ -178,18 +179,10 @@ public class TimeTableControllerTest {
 		Date dateBegin = this.dateformat.parse("08/04/2016 16:00:00");
 		Date dateEnd = this.dateformat.parse("08/04/2016 18:00:00");
 		this.controller.addBooking(this.timeTableId, bookingId, this.login, dateBegin, dateEnd, this.roomId);
-		Map<Integer, Book> books = this.controller.tTDB.getTimeTables().get(this.timeTableId).getBooks();
-		assertEquals(books.size(), 1);
-		assertTrue(books.containsKey(bookingId));
-		
-		Book book = books.get(bookingId);
-		assertEquals(book.getId(), bookingId);
-		assertEquals(book.getRoom().getId(), this.roomId);
-		assertEquals(book.getTeacherLogin(), this.login);
-		assertEquals(book.getDateBegin(), dateBegin);
-		assertEquals(book.getDateEnd(), dateEnd);
+		assertEquals(this.controller.tTDB.getBooksSize(this.timeTableId), 1);
+		assertTrue(this.controller.tTDB.containsBook(this.timeTableId, bookingId, this.login, dateBegin, dateEnd, this.roomId));
 	}
-	/*
+	
 	@Test
 	public void testGetBookingsDate() {
 		int timeTableId = 1;
@@ -207,9 +200,7 @@ public class TimeTableControllerTest {
 		int timeTableId = 1;
 		int bookId = 1;
 		this.controller.removeBook(timeTableId, bookId);
-		TimeTable timeTable = this.controller.tTDB.getTimeTables().get(1);
-		assertEquals(timeTable.getBooks().size(), 3);
-		assertEquals(timeTable.getBook(bookId), null);
+		assertEquals(this.controller.tTDB.getBooksSize(timeTableId), 3);
 	}
 	
 	@Test
@@ -223,5 +214,5 @@ public class TimeTableControllerTest {
 	public void testSaveDB() {
 		
 	}
-	*/
+	
 }
