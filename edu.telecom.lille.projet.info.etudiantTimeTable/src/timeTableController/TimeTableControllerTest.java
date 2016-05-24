@@ -10,15 +10,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import timeTableModel.Book;
-import timeTableModel.Room;
-import timeTableModel.TimeTable;
 
 public class TimeTableControllerTest {
 
@@ -80,7 +75,8 @@ public class TimeTableControllerTest {
 		
 		Date dateBegin = this.dateformat.parse("07/04/2016 08:15:00");
 		Date dateEnd = this.dateformat.parse("07/04/2016 11:45:00");
-		assertTrue(this.controller.tTDB.containsBook(1, 2, "GS", dateBegin, dateEnd, 2));
+		String login = "GS";
+		assertTrue(this.controller.tTDB.containsBook(1, 2, login, dateBegin, dateEnd, 2));
 	}
 	
 	@Test

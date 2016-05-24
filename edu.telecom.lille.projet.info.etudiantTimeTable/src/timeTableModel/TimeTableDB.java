@@ -39,7 +39,7 @@ public class TimeTableDB {
 	/**
 	 * Activate or not the SQL storage
 	 */
-	private static final Boolean SQLactivated = false;		
+	private static final Boolean SQLactivated = true;		
 
 	/**
 	 * File where the program save all the data if the SQL mode is not activated.
@@ -66,7 +66,6 @@ public class TimeTableDB {
 	 */
 	public TimeTableDB(String fileXML) {
 		this.setFileXML(fileXML);
-		this.initSQL();
 		this.loadDB();
 	}
 		
@@ -159,7 +158,7 @@ public class TimeTableDB {
 	 */
 	public boolean loadDB() {
 		if(this.isSQL()) {
-			return true;
+			return this.initSQL();
 		}
 		else {
 			return this.loadXML(this.timeTables, this.rooms);
@@ -177,21 +176,25 @@ public class TimeTableDB {
 		Element roomsXML = new Element("Rooms");
 		Element timeTablesXML = new Element("TimeTables");
 		
-		for(Map.Entry<Integer, Room> entry : rooms.entrySet()) {
+		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
 			roomsXML.addContent(entry.getValue().toXML());
-		}		
-		for(Map.Entry<Integer, TimeTable> entry : timeTables.entrySet()) {
+		}
+		for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
 			timeTablesXML.addContent(entry.getValue().toXML());
 		}
-		
+
+		rootXML.addContent(roomsXML);
+		rootXML.addContent(timeTablesXML);
 		org.jdom2.Document document = new Document(rootXML);
 		Boolean success;
+		
 		try {
 			XMLOutputter xml = new XMLOutputter(Format.getPrettyFormat());
 			xml.output(document, new FileOutputStream(this.getFileXML()));
 			success = true;
 		}
 		catch(java.io.IOException e) {
+			e.printStackTrace();
 			success = false;
 		}
 		return success;		
@@ -221,6 +224,7 @@ public class TimeTableDB {
 				TimeTable.parseXML(rootXML.getChild("TimeTables"), timeTables, rooms);
 			}
 			catch(Exception e) {
+				e.printStackTrace();
 			}
 		}
 		return success;		
@@ -228,15 +232,18 @@ public class TimeTableDB {
 	
 	/**
 	 * Create a connection between this program and the SQLite database
+	 * @return 
 	 */
-	public void initSQL() {
+	public Boolean initSQL() {
 		if(this.isSQL()) {
 			String dbName = this.getFileSQL();
 			File file = new File (dbName);
 			if(!file.exists() || true) {
 				this.XMLtoSQL();
 			}
+			return true;
 		}
+		return false;
 	}
 	
 	/**
@@ -252,6 +259,7 @@ public class TimeTableDB {
 			success = true;
 		}
 		catch(Exception e) {
+			e.printStackTrace();
 			success = false;
 		}
 		return success;
@@ -285,8 +293,8 @@ public class TimeTableDB {
 			}
 			success &= this.sql("CREATE TABLE TimeTable (GroupId INT);");
 			success &= this.sql("CREATE TABLE Room (RoomId INT, Capacity INT);");
-			success &= this.sql("CREATE TABLE Book (BookingId INT UNSIGNED , Login VARCHAR(255), "
-				+ "DateBegin DATETIME, DateEnd DATETIME, RoomId INT UNSIGNED , TimeTableId INT UNSIGNED,"
+			success &= this.sql("CREATE TABLE Book (BookingId INT UNSIGNED , Login VARCHAR(255),"
+				+ " DateBegin DATETIME, DateEnd DATETIME, RoomId INT UNSIGNED , TimeTableId INT UNSIGNED,"
 				+ " CONSTRAINT fk_RoomId FOREIGN KEY (TimeTableId) REFERENCES TimeTable(GroupId),"
 				+ " CONSTRAINT fk_RoomId FOREIGN KEY (RoomId) REFERENCES Room(RoomId));");
 			for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
@@ -387,9 +395,9 @@ public class TimeTableDB {
 				Boolean success = true;
 				success &= (book.getId() == bookingId);
 				success &= (book.getRoom().getId() == roomId);
-				success &= (book.getTeacherLogin() == login);
-				success &= (book.getDateBegin() == dateBegin);
-				success &= (book.getDateEnd() == dateEnd);
+				success &= book.getTeacherLogin().equals(login);
+				success &= (book.getDateBegin().equals(dateBegin));
+				success &= book.getDateEnd().equals(dateEnd);
 				return success;
 			}
 			else {
@@ -739,15 +747,12 @@ public class TimeTableDB {
 			return success;					
 		}
 		else {
-			System.out.println(1);
 			if(this.containsRoom(roomId) && this.containsTimeTable(timeTableId)) {
-				System.out.println(2);
 				TimeTable timetable = this.getTimeTables().get(timeTableId); 
 				Room room = this.getRooms().get(roomId);
 				return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
 			}
 			else {
-				System.out.println(3);
 				return false;
 			}
 		}

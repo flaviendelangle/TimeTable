@@ -12,18 +12,33 @@ public class BookORM extends ORM {
 	protected String table = "Book";
 
 	/**
-	 * Name of the SQL column where the ids are stored
+	 * Name of the SQL column where the ids of the bookings are stored
 	 */
 	protected String idColumn = "BookingId";
 	
+	/**
+	 * Name of the SQL column where the logins are stored
+	 */
 	protected String loginColumn = "Login";
-	
+
+	/**
+	 * Name of the SQL column where the beginning dates are stored
+	 */
 	protected String dateBeginColumn = "DateBegin";
 	
+	/**
+	 * Name of the SQL column where the ending dates are stored
+	 */
 	protected String dateEndColumn = "DateEnd";
 	
+	/**
+	 * Name of the SQL column where the ids of the rooms are stored
+	 */
 	protected String roomColumn = "RoomId";
 	
+	/**
+	 * Name of the SQL column where the ids of the timetables are stored
+	 */
 	protected String timeTableColumn = "TimeTableId";
 	
 	/**
