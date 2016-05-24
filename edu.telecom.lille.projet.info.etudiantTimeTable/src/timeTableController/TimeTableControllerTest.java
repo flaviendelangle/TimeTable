@@ -64,36 +64,24 @@ public class TimeTableControllerTest {
 	public void tearDown() throws Exception {
 		this.controller.tTDB.saveDB();
 	}
-	/*
+	
 	@Test
 	public void testLoadDBRoom() {
-		assertEquals(this.controller.tTDB.getRooms().size(), 3);
-		assertTrue(this.controller.tTDB.getRooms().containsKey(1));
-		
-		Room room = this.controller.tTDB.getRooms().get(1);
-		assertEquals(room.getId(), 1);
-		assertEquals(room.getCapacity(), 50);
+		assertEquals(this.controller.tTDB.getRoomsSize(), 3);
+		assertTrue(this.controller.tTDB.containsRoom(1));
+		assertTrue(this.controller.tTDB.checkRoom(1, 1, 50));
 	}
 	
 	@Test
-	public void testLoadDBTimeTable() {
+	public void testLoadDBTimeTable() throws ParseException {
+		assertEquals(this.controller.tTDB.getTimeTablesSize(), 1);
+		assertTrue(this.controller.tTDB.containsTimeTable(1));
+		assertEquals(this.controller.tTDB.getBooksSize(1), 4);
 		
-		assertEquals(this.controller.tTDB.getTimeTables().size(), 1);
-		assertTrue(this.controller.tTDB.getRooms().containsKey(1));
-		
-		TimeTable timeTable = this.controller.tTDB.getTimeTables().get(1);
-		assertEquals(timeTable.getId(), 1);
-		assertEquals(timeTable.getBooks().size(), 4);
-		assertTrue(timeTable.getBooks().containsKey(2));
-		
-		Book booking = timeTable.getBook(2);
-		assertEquals(booking.getId(), 2);
-		assertEquals(booking.getTeacherLogin(), "GS");
-		assertEquals(booking.getRoom().getId(), 2);
-		assertEquals(this.dateformat.format(booking.getDateBegin()), "07/04/2016 08:15:00");
-		assertEquals(this.dateformat.format(booking.getDateEnd()), "07/04/2016 11:45:00");
+		Date dateBegin = this.dateformat.parse("07/04/2016 08:15:00");
+		Date dateEnd = this.dateformat.parse("07/04/2016 11:45:00");
+		assertTrue(this.controller.tTDB.containsBook(1, 2, "GS", dateBegin, dateEnd, 2));
 	}
-	*/
 	
 	@Test
 	public void testGetTeacherLogin() throws ParseException {

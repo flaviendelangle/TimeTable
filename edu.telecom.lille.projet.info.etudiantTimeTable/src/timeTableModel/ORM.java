@@ -20,19 +20,24 @@ public abstract class ORM {
 	public static Statement stmt;
 	
 	/**
+	 * Format of the SQL dates
+	 */
+	public static SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	/**
 	 * Format of the SELECT request
 	 */
-	private String SELECT = "SELECT %s FROM %s WHERE %s";
+	private final String SELECT = "SELECT %s FROM %s WHERE %s";
 	
 	/**
 	 * Format of the INSERT request
 	 */
-	private String INSERT = "INSERT INTO %s (%s) VALUES(%s)";
+	private final String INSERT = "INSERT INTO %s (%s) VALUES(%s)";
 	
 	/**
 	 * Format of the DELETE request
 	 */
-	private String DELETE = "DELETE FROM %s WHERE %s";
+	private final String DELETE = "DELETE FROM %s WHERE %s";
 
 	/**
 	 * Check if there is a line in the right table matching all the conditions
@@ -99,8 +104,7 @@ public abstract class ORM {
 	 * @return condition
 	 */
 	protected String condition(String column, Date value) {
-		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return this.condition(column, dateformat.format(value));
+		return this.condition(column, ORM.dateformat.format(value));
 	}
 	
 	/**

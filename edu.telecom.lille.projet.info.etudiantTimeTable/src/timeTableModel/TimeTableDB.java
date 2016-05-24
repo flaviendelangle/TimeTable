@@ -3,8 +3,6 @@
  *******************************************************************************/
 package timeTableModel;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,7 +18,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -42,7 +39,7 @@ public class TimeTableDB {
 	/**
 	 * Activate or not the SQL storage
 	 */
-	private static final Boolean SQLactivated = true;		
+	private static final Boolean SQLactivated = false;		
 
 	/**
 	 * File where the program save all the data if the SQL mode is not activated.
@@ -302,18 +299,6 @@ public class TimeTableDB {
 		return success;
 	}
 	
-	public ResultSet query(String request) {
-       ResultSet result = null;
-       try {
-    	   result = ORM.stmt.executeQuery(request);
-       } 
-       catch (SQLException e) {
-           e.printStackTrace();
-           System.out.println("Error in the request : " + request);
-       }
-       return result;		
-	}
-	
 	public Boolean sql(String request) {
 		Boolean success;
 		try {
@@ -383,7 +368,7 @@ public class TimeTableDB {
 			return Book.objects.exist(timeTableId, bookingId, false);
 		}
 		else {
-			if(this.getTimeTables().containsKey(timeTableId)) {
+			if(this.containsTimeTable(timeTableId)) {
 				return this.getTimeTables().get(timeTableId).getBooks().containsKey(bookingId);
 			}
 			else {
@@ -439,7 +424,7 @@ public class TimeTableDB {
 			}
 		}
 		else {
-			if(this.getTimeTables().containsKey(timeTableId)) {
+			if(this.containsTimeTable(timeTableId)) {
 				Book booking = this.getTimeTables().get(timeTableId).getBook(bookId);
 				if(booking != null) {
 					teacherLogin = booking.getTeacherLogin();
@@ -676,7 +661,7 @@ public class TimeTableDB {
 		}
 		else {
 			Boolean success;
-			if(this.getTimeTables().containsKey(timeTableId)) {
+			if(this.containsTimeTable(timeTableId)) {
 				success = false;
 			}
 			else {
@@ -730,12 +715,15 @@ public class TimeTableDB {
 			return success;					
 		}
 		else {
-			if(this.getRooms().containsKey(roomId) && this.getTimeTables().containsKey(timeTableId)) {
+			System.out.println(1);
+			if(this.containsRoom(roomId) && this.containsTimeTable(timeTableId)) {
+				System.out.println(2);
 				TimeTable timetable = this.getTimeTables().get(timeTableId); 
 				Room room = this.getRooms().get(roomId);
 				return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
 			}
 			else {
+				System.out.println(3);
 				return false;
 			}
 		}
@@ -780,7 +768,7 @@ public class TimeTableDB {
 		}
 		else {
 			Boolean success;
-			if(this.getTimeTables().containsKey(timeTableId)) {
+			if(this.containsTimeTable(timeTableId)) {
 				success = this.getTimeTables().get(timeTableId).removeBook(bookId);
 			}
 			else {
@@ -814,7 +802,7 @@ public class TimeTableDB {
 		}
 		else {
 			int bookingsMaxId;
-			if(this.getTimeTables().containsKey(timeTableId)) {
+			if(this.containsTimeTable(timeTableId)) {
 				bookingsMaxId = this.getTimeTables().get(timeTableId).getBookingsMaxId();
 			}
 			else {
