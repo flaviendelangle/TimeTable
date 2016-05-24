@@ -666,11 +666,35 @@ public class TimeTableDB {
 			}
 			else {
 				success = true;
-				this.getTimeTables().put(timeTableId, new TimeTable(timeTableId));
+				this.getTimeTables().put(timeTableId, new TimeTableGroup(timeTableId));
 			}
 			return success;
 		}
 	}
+	public Boolean addTimeTable(String teacherLogin) {
+		if(this.isSQL()) {
+			Boolean success;
+			if(!this.containsTimeTable(teacherLogin)) {
+				success = TimeTable.objects.create(teacherLogin);
+			}
+			else {
+				success = false;
+			}
+			return success;			
+		}
+		else {
+			Boolean success;
+			if(this.containsTimeTable(teacherLogin)) {
+				success = false;
+			}
+			else {
+				success = true;
+				this.getTimeTables().put(teacherLogin, new TimeTableTeacher(teacherLogin));
+			}
+			return success;
+		}
+	}
+
 
 	/**
 	 * Description of the method removeTimeTable.

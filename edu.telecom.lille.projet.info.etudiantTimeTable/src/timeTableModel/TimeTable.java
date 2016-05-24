@@ -16,24 +16,17 @@ import java.util.Map.Entry;
 
 import org.jdom2.Element;
 
-// Start of user code (user defined imports)
-
-// End of user code
 
 /**
  * Description of TimeTable.
  * 
  * @author Flavien DELANGLE and Marie PAYET
  */
-public class TimeTable {
+public abstract class TimeTable {
 	
-	/**
-	 * Id of the current timetable
-	 */
-	private int id = 0;
 
 	/**
-	 * Map interface containing all the rooms related to the timetable.
+	 * Map interface containing all the books related to the timetable.
 	 */
 	private Map<Integer,Book> books;
 	
@@ -45,31 +38,14 @@ public class TimeTable {
 	/**
 	 * The constructor.
 	 */
-	public TimeTable(int timeTableId, Map<Integer,Book> books) {
-		this.setId(timeTableId);
+	public TimeTable(Map<Integer,Book> books) {
 		this.setBooks(books);
 	}
 
-	public TimeTable(int timeTableId) {
-		this.setId(timeTableId);
+	public TimeTable() {
 		this.setBooks(new HashMap<Integer, Book>());
 	}
 
-	/**
-	 * Returns the identifier of this timetable.
-	 * @return id 
-	 */
-	public int getId() {
-		return this.id;
-	}
-
-	/**
-	 * Update the identifier of this timetable.
-	 * @param newId 
-	 */
-	public void setId(int newId) {
-		this.id = newId;
-	}
 
 	/**
 	 * Returns the booking linked to this timetable.
