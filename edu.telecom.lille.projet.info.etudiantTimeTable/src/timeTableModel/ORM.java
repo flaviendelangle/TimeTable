@@ -7,6 +7,12 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * ORM to communicate with the SQL database
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ */
 public abstract class ORM {
 
 	/**
@@ -41,10 +47,10 @@ public abstract class ORM {
 
 	/**
 	 * Check if there is a line in the right table matching all the conditions
-	 * @param table (table in which we want to to check the existence of something)
-	 * @param conditions (conditions needed to execute this query)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this line exist ?)
+	 * @param table Table in which we want to to check the existence of something
+	 * @param conditions Conditions needed to execute this query
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this line exist ?
 	 */
 	protected Boolean exist(String table, String conditions, Boolean default_value) {
 		Boolean exist;
@@ -61,8 +67,8 @@ public abstract class ORM {
 	
 	/**
 	 * Get the number of lines in the given table
-	 * @param table (table of which we want to have the length)
-	 * @return length (number of line in the right table)
+	 * @param table Table of which we want to have the length
+	 * @return Number of line in the right table
 	 */
 	protected int length(String table) {
 		int length;
@@ -78,10 +84,10 @@ public abstract class ORM {
 	}
 	
 	/**
-	 * Return the conditional part of a SELECT SQL request 
-	 * @param column (column in which the value must be)
-	 * @param value (value that must be in the right column)
-	 * @return condition (main function to create a subrequest to find with a String)
+	 * Return the conditional part of a SELECT SQL request
+	 * @param column Column in which the value must be
+	 * @param value Value that must be in the right column
+	 * @return Main function to create a subrequest to find with a String
 	 */
 	protected String condition(String column, String value) {
 		return " " + column + " = \"" + value + "\" ";
@@ -89,9 +95,9 @@ public abstract class ORM {
 
 	/**
 	 * Return the conditional part of a SELECT SQL request
-	 * @param column (column in which the value must be)
-	 * @param value (value that must be in the right column)
-	 * @return condition (main function to create a subrequest to find with an int)
+	 * @param column Column in which the value must be
+	 * @param value Value that must be in the right column
+	 * @return Main function to create a subrequest to find with an int
 	 */
 	protected String condition(String column, int value) {
 		return this.condition(column, String.valueOf(value));
@@ -99,9 +105,9 @@ public abstract class ORM {
 	
 	/**
 	 * Return the conditional part of a SELECT SQL request
-	 * @param column (column in which the value must be)
-	 * @param value (value that must be in the right column)
-	 * @return condition (main function to create a subrequest to find with a date)
+	 * @param column Column in which the value must be
+	 * @param value Value that must be in the right column
+	 * @return Main function to create a subrequest to find with a date
 	 */
 	protected String condition(String column, Date value) {
 		return this.condition(column, ORM.dateformat.format(value));
@@ -109,15 +115,14 @@ public abstract class ORM {
 	
 	/**
 	 * Get all the lines in the right table that match all the conditions
-	 * @param table (table in which we want to retrieve something)
-	 * @param columns (columns needed to execute this query)
-	 * @param conditions (conditions needed to execute this query)
-	 * @return results (lines matching the conditions)
+	 * @param table Table in which we want to retrieve something
+	 * @param columns Columns needed to execute this query
+	 * @param conditions Conditions needed to execute this query
+	 * @return Lines matching the conditions
 	 */
 	protected ResultSet get(String table, String columns, String conditions) {
 		String request = String.format(this.SELECT, columns, table, conditions);
 		ResultSet results = null;
-		System.out.println(request);
 		try {
 			results = ORM.stmt.executeQuery(request);
 		} 
@@ -130,14 +135,13 @@ public abstract class ORM {
 	
 	/**
 	 * Create a new line in the right table
-	 * @param table (table in which we want to create something)
-	 * @param columns (columns used to execute this query)
-	 * @param values (values used to execute this query)
-	 * @return success (has this line been successfully created ?)
+	 * @param table Table in which we want to create something
+	 * @param columns Columns used to execute this query
+	 * @param values Balues used to execute this query
+	 * @return Has this line been successfully created ?
 	 */
 	protected Boolean create(String table, String columns, String values) {
 		String request = String.format(this.INSERT, table, columns, values);
-		System.out.println(request);
 		Boolean success;
 		try {
 			ORM.stmt.executeUpdate(request);
@@ -152,13 +156,12 @@ public abstract class ORM {
 	
 	/**
 	 * Delete a line in the right table
-	 * @param table (table in which we want to delete something)
-	 * @param conditions (conditions needed to execute this query)
-	 * @return success (has the line been successfully deleted ?)
+	 * @param table Table in which we want to delete something
+	 * @param conditions Vonditions needed to execute this query
+	 * @return success (Has the line been successfully deleted ?
 	 */
 	protected Boolean delete(String table, String conditions) {
 		String request = String.format(this.DELETE, table, conditions);
-		System.out.println(request);
 		Boolean success;
 		try {
 			ORM.stmt.executeUpdate(request);

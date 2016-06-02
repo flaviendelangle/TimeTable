@@ -11,9 +11,10 @@ import org.jdom2.Element;
 
 
 /**
- * Description of Room.
+ * Room in which we can make books
  * 
  * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
  */
 public class Room {
 	
@@ -34,6 +35,8 @@ public class Room {
 
 	/**
 	 * The constructor.
+	 * @param id Id of the new room
+	 * @param capacity Capacity of the new room
 	 */
 	public Room(int id, int capacity) {
 		this.setId(id);
@@ -42,7 +45,7 @@ public class Room {
 
 	/**
 	 * Returns the identifier of this room.
-	 * @return id 
+	 * @return The Id of this room
 	 */
 	public int getId() {
 		return this.id;
@@ -50,7 +53,7 @@ public class Room {
 
 	/**
 	 * Update the identifier of this room. 
-	 * @param newRoomId 
+	 * @param newId New Id for this Room 
 	 */
 	public void setId(int newId) {
 		this.id = newId;
@@ -58,7 +61,7 @@ public class Room {
 
 	/**
 	 * Returns the capacity of this room.
-	 * @return capacity 
+	 * @return Capacity of this room
 	 */
 	public int getCapacity() {
 		return this.capacity;
@@ -66,7 +69,7 @@ public class Room {
 
 	/**
 	 * Update the capacity of this room. 
-	 * @param newCapacity 
+	 * @param newCapacity Capacity of this room
 	 */
 	public void setCapacity(int newCapacity) {
 		this.capacity = newCapacity;
@@ -74,7 +77,7 @@ public class Room {
 
 	/**
 	 * Return a string representation of this room.
-	 * @return toString
+	 * @return Stringified version of this room
 	 */
 	public String toString() {
 		return Room.stringify(this.getId(), this.getCapacity());
@@ -82,7 +85,9 @@ public class Room {
 	
 	/**
 	 * Return a string representation of a Room (static version)
-	 * @return toString
+	 * @param roomId Id of the room
+	 * @param capacity Capacity of the room
+	 * @return Stringified version of a room
 	 */
 	public static String stringify(int roomId, int capacity) {
 		String toString = "Room n°" + roomId + " (" + capacity + " student)";
@@ -91,7 +96,7 @@ public class Room {
 
 	/**
 	 * Returns the XML representation of the room
-	 * @return roomXML 
+	 * @return XML representation of the room 
 	 */
 	public Element toXML() {
 		Element roomXML = new Element("Room");
@@ -109,7 +114,7 @@ public class Room {
 	
 	/**
 	 * Returns a SQL request to create this Room in the database
-	 * @return success (has the room successfully been created)
+	 * @return Has the room successfully been created
 	 */
 	public Boolean toSQL() {
 		return Room.objects.create(this.getId(), this.getCapacity());
@@ -117,8 +122,8 @@ public class Room {
 	
 	/**
 	 * Generate a MAP of Room objects from a XML representation
-	 * @param roomListXML
-	 * @param rooms
+	 * @param roomListXML XML reprensentation of the rooms
+	 * @param rooms Map in which we must put all the Room instances
 	 */
 	public static void parseXML(Element roomListXML, Map<Integer, Room> rooms) {
 		List<Element> roomsXML = roomListXML.getChildren("Room");

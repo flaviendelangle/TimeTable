@@ -1,6 +1,12 @@
 package timeTableModel;
 import java.sql.ResultSet;
 
+/**
+ * Implementation of the ORM for the TimeTable class.
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ */
 public class TimeTableORM extends ORM {
 	
 	/**
@@ -28,8 +34,8 @@ public class TimeTableORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a timetable by giving the id
-	 * @param timeTableId (id of the timetable
-	 * @return conditions (stringified version of this condition)
+	 * @param timeTableId Id of the timetable
+	 * @return Stringified version of this condition
 	 */
 	private String conditionId(int timeTableId) {
 		return super.condition(this.idColumn, timeTableId);
@@ -38,8 +44,8 @@ public class TimeTableORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a timetable by giving the login of the teacher
-	 * @param login (login of the teacher of the timetable)
-	 * @return conditions (stringified version of this condition)
+	 * @param login Login of the teacher of the timetable
+	 * @return Stringified version of this condition
 	 */
 	private String conditionLogin(String login) {
 		return super.condition(this.idColumn, login);
@@ -47,7 +53,7 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Return the list of the columns to create a new timetable in the database
-	 * @return columns (columns used to create this timetable)
+	 * @return Columns used to create this timetable
 	 */
 	private String insertColumns(boolean isTeacher) {
 		return this.idColumn + (isTeacher ? ("," + this.loginColumn) : "");
@@ -55,8 +61,8 @@ public class TimeTableORM extends ORM {
 	
 	/**
 	 * Return the list of the values to create a new timetable for students in the database
-	 * @param timeTableId (id of the new timetable)
-	 * @return values (values used to create this timetable)
+	 * @param timeTableId Id of the new timetable
+	 * @return Values used to create this timetable
 	 */
 	private String insertValues(int timeTableId) {
 		return String.valueOf(timeTableId);
@@ -64,9 +70,9 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Return the list of the values to create a new timetable for teacher in the database
-	 * @param timeTableId (id of the new timetable)
-	 * @param login (login of the teacher of the new timetable)
-	 * @return values (values used to create this timetable)
+	 * @param timeTableId Id of the new timetable
+	 * @param login Login of the teacher of the new timetable
+	 * @return Values used to create this timetable
 	 */
 	private String insertValues(int timeTableId, String login) {
 		return timeTableId + ",\"" + login + "\"";
@@ -74,7 +80,7 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Get all the rooms
-	 * @return timetables (all the timetables stored in the database)
+	 * @return All the timetables stored in the database
 	 */
 	public ResultSet all() {
 		return super.get(this.table, "*", "1");
@@ -82,8 +88,8 @@ public class TimeTableORM extends ORM {
 	
 	/**
 	 * Get all the timetables with the right id (there should never be more than one)
-	 * @param timeTableId (id of the timetable we want to retrieve)
-	 * @return timetables (all the timetables with the right id)
+	 * @param timeTableId Id of the timetable we want to retrieve
+	 * @return All the timetables with the right id
 	 */
 	public ResultSet get(int timeTableId) {
 		String conditions = this.conditionId(timeTableId);
@@ -92,8 +98,8 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Create a new TimeTable in the database
-	 * @param timeTableId (id of the new timetable)
-	 * @return success (has the timetable been successfully created)
+	 * @param timeTableId Id of the new timetable
+	 * @return Has the timetable been successfully created
 	 */
 	public Boolean create(int timeTableId) {
 		return super.create(this.table, this.insertColumns(false), this.insertValues(timeTableId));
@@ -101,9 +107,9 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Create a new TimeTable in the database
-	 * @param timeTableId (id of the new timetable)
-	 * @param login (login of the teacher of the new timetable)
-	 * @return success (has the timetable been successfully created)
+	 * @param timeTableId Id of the new timetable
+	 * @param login Login of the teacher of the new timetable
+	 * @return Has the timetable been successfully created
 	 */
 	public Boolean create(int timeTableId, String login) {
 		return super.create(this.table, this.insertColumns(true), this.insertValues(timeTableId, login));
@@ -111,8 +117,8 @@ public class TimeTableORM extends ORM {
 
 	/**
 	 * Remove the TimeTable with the right id
-	 * @param timeTableId (id of the timetable we want to delete)
-	 * @return success (has the timetable been successfully deleted)
+	 * @param timeTableId Id of the timetable we want to delete
+	 * @return Has the timetable been successfully deleted
 	 */
 	public Boolean delete(int timeTableId) {
 		String conditions = this.conditionId(timeTableId);
@@ -121,9 +127,9 @@ public class TimeTableORM extends ORM {
 	
 	/**
 	 * Check if there is a timetable for students with the right id
-	 * @param timeTableId (id that the timetable of which we want to check the existence must have)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this timetable exist ?)
+	 * @param timeTableId Id that the timetable of which we want to check the existence must have
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this timetable exist ?
 	 */
 	public Boolean exist(int timeTableId, Boolean default_value) {
 		String conditions = this.conditionId(timeTableId);
@@ -132,9 +138,9 @@ public class TimeTableORM extends ORM {
 	
 	/**
 	 * Check if there is a timetable for teachers with the right login
-	 * @parem login (login that the timetable of which we want to check the existence must have)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this timetable exist ?)
+	 * @param login Login that the timetable of which we want to check the existence must have
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this timetable exist ?
 	 */
 	public Boolean exist(String login, Boolean default_value) {
 		String conditions = this.conditionLogin(login);
@@ -143,7 +149,7 @@ public class TimeTableORM extends ORM {
 	
 	/**
 	 * Get the length of the TimeTable table
-	 * @return length (number of timetables stored in the database)
+	 * @return Number of timetables stored in the database
 	 */
 	public int length() {
 		return super.length(this.table);

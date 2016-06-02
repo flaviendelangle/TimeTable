@@ -4,6 +4,12 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * ORM implementation for the Book class.
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ */
 public class BookORM extends ORM {
 	
 	/**
@@ -51,8 +57,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the id
-	 * @param bookId (Id of the book)
-	 * @return conditions (stringified version of this condition)
+	 * @param bookId Id of the book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionId(int bookId) {
 		return super.condition(this.idColumn, bookId);
@@ -61,8 +67,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the timetable
-	 * @param timeTableId (Id of the timeTable of the book)
-	 * @return conditions (stringified version of this condition)
+	 * @param timeTableId Id of the timeTable of the book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionTimeTable(int timeTableId) {
 		return super.condition(this.timeTableColumn, timeTableId);
@@ -71,8 +77,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the login of the teacher
-	 * @param timeTableId (login of the teacher of the book)
-	 * @return conditions (stringified version of this condition)
+	 * @param timeTableId Login of the teacher of the book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionLogin(String login) {
 		return super.condition(this.loginColumn, login);
@@ -81,8 +87,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the beginning date
-	 * @param dateBegin (beginning date of the book) 
-	 * @return conditions (stringified version of this condition)
+	 * @param dateBegin Beginning date of the book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionDateBegin(Date dateBegin) {
 		return super.condition(this.dateBeginColumn, dateBegin);
@@ -91,8 +97,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the ending date
-	 * @param dateEnd (ending date of the book)  
-	 * @return conditions (stringified version of this condition)
+	 * @param dateEnd Ending date of the book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionDateEnd(Date dateEnd) {
 		return super.condition(this.dateEndColumn, dateEnd);
@@ -101,8 +107,8 @@ public class BookORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a book by giving the room
-	 * @param roomId (id of the room of this book)
-	 * @return conditions (stringified version of this condition)
+	 * @param roomId Id of the room of this book
+	 * @return Stringified version of this condition
 	 */
 	private String conditionRoom(int roomId) {
 		return super.condition(this.roomColumn, roomId);
@@ -110,7 +116,7 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Return the list of the columns to create a new book in the database
-	 * @return columns (columns to use to create a new book)
+	 * @return Columns to use to create a new book
 	 */
 	private String insertColumns() {
 		return this.idColumn + "," + this.loginColumn + "," + this.dateBeginColumn + "," + 
@@ -119,13 +125,13 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Return the list of the values to create a new book in the database
-	 * @param timeTableId (id of the timetable in which this book is created)
-	 * @param bookingId (id of this book)
-	 * @param login (login of the teacher of this book)
-	 * @param dateBegin (beginning date of this book)
-	 * @param dateEnd (ending date of this book)
-	 * @param roomId (id of the room of this book)
-	 * @return values (values to use to create a new book)
+	 * @param timeTableId Id of the timetable in which this book is created
+	 * @param bookingId Id of this book
+	 * @param login Login of the teacher of this book
+	 * @param dateBegin Beginning date of this book
+	 * @param dateEnd Ending date of this book
+	 * @param roomId Id of the room of this book
+	 * @return Values to use to create a new book
 	 */
 	private String insertValues(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
 		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -138,8 +144,8 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Get all the books in the right timetable
-	 * @param timeTableId (id of the timetable of which we want to retrieve the books)
-	 * @return books (all the books linked to the right timetable)
+	 * @param timeTableId Id of the timetable of which we want to retrieve the books
+	 * @return All the books linked to the right timetable
 	 */
 	public ResultSet get(int timeTableId) {
 		String conditions = this.conditionTimeTable(timeTableId);
@@ -148,9 +154,9 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Get all the books in the right timetable and with the right id (there should never be more than one)
-	 * @param timeTableId (id of the timetable of which we want to retrieve a book)
-	 * @param bookId (id of the book we want to retrieve)
-	 * @return books (all the books with the right id)
+	 * @param timeTableId Id of the timetable of which we want to retrieve a book
+	 * @param bookId Id of the book we want to retrieve
+	 * @return All the books with the right id
 	 */
 	public ResultSet get(int timeTableId, int bookId) {
 		String conditions = this.conditionId(bookId) + " AND " + this.conditionTimeTable(timeTableId);
@@ -159,13 +165,13 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Create a new Book in the database
-	 * @param timeTableId (id of the timetable of the new book)
-	 * @param bookingId (id of the new book)
-	 * @param login (login of the teacher of the new book)
-	 * @param dateBegin (beginning date of the new book)
-	 * @param dateEnd (ending date of the new book)
-	 * @param roomId (id of the room of the new book)
-	 * @return success (has the book been successfully created ?)
+	 * @param timeTableId Id of the timetable of the new book
+	 * @param bookingId Id of the new book
+	 * @param login Login of the teacher of the new book
+	 * @param dateBegin Beginning date of the new book
+	 * @param dateEnd Ending date of the new book
+	 * @param roomId Id of the room of the new book
+	 * @return Has the book been successfully created ?
 	 */
 	public Boolean create(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
 		return super.create(this.table, this.insertColumns(), this.insertValues(timeTableId, bookingId, login, dateBegin, dateEnd, roomId));
@@ -173,9 +179,9 @@ public class BookORM extends ORM {
 
 	/**
 	 * Remove the Book in the right timetable and with the right id
-	 * @param timeTableId (timetable in which the book the delete is)
-	 * @param bookId (id of the book we want to remove)
-	 * @return success (has the book been successfully deleted ?)
+	 * @param timeTableId Timetable in which the book the delete is
+	 * @param bookId Id of the book we want to remove
+	 * @return Has the book been successfully deleted ?
 	 */
 	public Boolean delete(int timeTableId, int bookId) {
 		String conditions = this.conditionId(bookId) + " AND " + this.conditionTimeTable(timeTableId);
@@ -184,9 +190,9 @@ public class BookORM extends ORM {
 		
 	/**
 	 * Check if there is a book with the right id
-	 * @param bookId (id of the book of which we want to check the extistence)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this book exist)
+	 * @param bookId Id of the book of which we want to check the extistence
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this book exist ?
 	 */
 	public Boolean exist(int bookId, Boolean default_value) {
 		String conditions = this.conditionId(bookId);
@@ -196,10 +202,10 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Check if there is a book with the right id and the right timetable
-	 * @param timeTableId (id of the timetable that the book we want to find must have)
-	 * @param bookId (id that the book we want to find must have)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this book exist)
+	 * @param timeTableId Id of the timetable that the book we want to find must have
+	 * @param bookId Id that the book we want to find must have
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this book exist ?
 	 */
 	public Boolean exist(int timeTableId, int bookId, Boolean default_value) {
 		String conditions = this.conditionId(bookId) + " AND " + this.conditionTimeTable(timeTableId);
@@ -208,14 +214,14 @@ public class BookORM extends ORM {
 
 	/**
 	 * Check if there is a book which match all the conditions
-	 * @param timeTableId (id of the timetable that the book we want to find must have)
-	 * @param bookId (id that the book we want to find must have)
-	 * @param login (login that the book we want to find must have)
-	 * @param dateBegin (beginning date that the book we want to find must have)
-	 * @param dateEnd (ending date that the book we want to find must have)
-	 * @param roomId (id of the room that the book we want to find must have)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this book exist)
+	 * @param timeTableId Id of the timetable that the book we want to find must have
+	 * @param bookId Id that the book we want to find must have
+	 * @param login Login that the book we want to find must have
+	 * @param dateBegin Beginning date that the book we want to find must have
+	 * @param dateEnd Ending date that the book we want to find must have
+	 * @param roomId Id of the room that the book we want to find must have
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this book exist ?
 	 */
 	public Boolean exist(int timeTableId, int bookId, String login, Date dateBegin, Date dateEnd, int roomId, Boolean default_value) {
 		String conditions = this.conditionTimeTable(timeTableId) + 
@@ -229,7 +235,7 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Get the length of the Book table
-	 * @return number (number of books stored in this database)
+	 * @return Number of books stored in this database)
 	 */
 	public int length() {
 		return super.length(this.table);
@@ -237,7 +243,8 @@ public class BookORM extends ORM {
 	
 	/**
 	 * Get the number of books in a timetable
-	 * @return length (number of books stored in this database in the right timetable)
+	 * @param timeTableId ID of the timetable from which we want to have the number of book
+	 * @return Number of books stored in this database in the right timetable
 	 */
 	public int length(int timeTableId) {
 		String conditions = this.conditionTimeTable(timeTableId);

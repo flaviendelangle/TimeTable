@@ -2,6 +2,12 @@ package timeTableModel;
 
 import java.sql.ResultSet;
 
+/**
+ * Implementation of the ORM of the Room class.
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ */
 public class RoomORM extends ORM {
 	
 	/**
@@ -29,8 +35,8 @@ public class RoomORM extends ORM {
 	/**
 	 * Return the conditional part of a SELECT SQL request
 	 * Work only to get a room by giving the id
-	 * @param roomId (id of the room)
-	 * @return conditions (stringified version of this condition)
+	 * @param Id of the room
+	 * @return Stringified version of this condition
 	 */
 	private String conditionId(int roomId) {
 		return super.condition(this.idColumn, roomId);
@@ -39,8 +45,8 @@ public class RoomORM extends ORM {
 	/**
 	 * Return the conditional part of the SQL request
 	 * Work only to get a room by giving the capacity
-	 * @param capacity (capacity of the room)
-	 * @return conditions (stringified version of this condition)
+	 * @param capacity Capacity of the room
+	 * @return Stringified version of this condition
 	 */
 	private String conditionCapacity(int capacity) {
 		return super.condition(this.capacityColumn, capacity);
@@ -48,7 +54,7 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Return the list of the columns to create a new room in the database
-	 * @return columns (columns used to create this room)
+	 * @return Columns used to create this room
 	 */
 	private String insertColumns() {
 		return this.idColumn + "," + this.capacityColumn;
@@ -56,9 +62,9 @@ public class RoomORM extends ORM {
 
 	/**
 	 * Return the list of the values to create a new room in the database
-	 * @param roomId (id of the new room)
-	 * @param capacity (capacity of the new room)
-	 * @return values (values used to create this room)
+	 * @param roomId Id of the new room
+	 * @param capacity Capacity of the new room
+	 * @return Values used to create this room
 	 */
 	private String insertValues(int roomId, int capacity) {
 		return roomId + "," + capacity;
@@ -66,7 +72,7 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Get all the rooms
-	 * @return rooms (all the rooms stored in this database)
+	 * @return All the rooms stored in this database
 	 */
 	public ResultSet all() {
 		return super.get(this.table, "*", "1");
@@ -74,8 +80,8 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Get all the rooms with the right id (there should never be more than one)
-	 * @param roomId (id of the room we want to retrieve)
-	 * @return rooms (all the rooms with the right id)
+	 * @param roomId Id of the room we want to retrieve
+	 * @return All the rooms with the right id
 	 */
 	public ResultSet get(int roomId) {
 		String conditions = this.conditionId(roomId);
@@ -84,9 +90,9 @@ public class RoomORM extends ORM {
 
 	/**
 	 * Create a new Room in the database
-	 * @param roomId (id of the new room)
-	 * @param capacity (capacity of the new room)
-	 * @return success (has the room been successfully created ?)
+	 * @param roomId Id of the new room
+	 * @param capacity Vapacity of the new room
+	 * @return Has the room been successfully created ?
 	 */
 	public Boolean create(int roomId, int capacity) {
 		return super.create(this.table, this.insertColumns(), this.insertValues(roomId, capacity));
@@ -94,8 +100,8 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Remove the Room with the right id
-	 * @param roomId (id of the room we want to delete)
-	 * @return success (has the room been successfully deleted ?)
+	 * @param roomId Id of the room we want to delete
+	 * @return Has the room been successfully deleted ?
 	 */
 	public Boolean delete(int roomId) {
 		String conditions = this.conditionId(roomId);
@@ -104,9 +110,9 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Check if there is a room with the right id
-	 * @param roomId (id of the room of which we want to check the existence)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this room exist ?)
+	 * @param roomId Id of the room of which we want to check the existence
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this room exist ?
 	 */
 	public Boolean exist(int roomId, Boolean default_value) {
 		String conditions = this.conditionId(roomId);
@@ -115,10 +121,10 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Check if there is a room with the right id and the right capacity
-	 * @param roomId (id of the room of which we want to check the existence)
-	 * @param capacity (capacity that the room we want to find must have)
-	 * @param default_value (value to return is there is an issue)
-	 * @return exist (does this room exist ?)
+	 * @param roomId Id of the room of which we want to check the existence
+	 * @param capacity Capacity that the room we want to find must have
+	 * @param default_value Value to return is there is an issue
+	 * @return Does this room exist ?
 	 */
 	public Boolean exist(int roomId, int capacity, Boolean default_value) {
 		String conditions = this.conditionId(roomId) + "AND" + this.conditionCapacity(capacity);
@@ -127,7 +133,7 @@ public class RoomORM extends ORM {
 	
 	/**
 	 * Get the length of the Room table
-	 * @return number (number of rooms stored in this database)
+	 * @return Number of rooms stored in this database
 	 */
 	public int length() {
 		return super.length(this.table);

@@ -14,9 +14,10 @@ import org.jdom2.Element;
 
 
 /**
- * Description of Book.
+ * Book of a room by a teacher.
  * 
  * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
  */
 public class Book {
 
@@ -52,11 +53,11 @@ public class Book {
 	
 	/**
 	 * The constructor.
-	 * @param id (id of the new book)
-	 * @param room (room of the new book)
-	 * @param teacherLogin (login of the teacher of the new book)
-	 * @param dateBegin (beginning date of the new book)
-	 * @param dateEnd (ending date of the new book)
+	 * @param id Id of the new book
+	 * @param room Room of the new book
+	 * @param teacherLogin Login of the teacher of the new book
+	 * @param dateBegin Beginning date of the new book
+	 * @param dateEnd Ending date of the new book
 	 */
 	public Book(int id, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {
 		this.setId(id);
@@ -68,7 +69,7 @@ public class Book {
 
 	/**
 	 * Returns the identifier of this book.
-	 * @return id (id of this book)
+	 * @return Id of this book
 	 */
 	public int getId() {
 		return this.id;
@@ -76,7 +77,7 @@ public class Book {
 
 	/**
 	 * Update the identifier of this book
-	 * @param newId (id of this book)
+	 * @param newId Id of this book
 	 */
 	public void setId(int newId) {
 		this.id = newId;
@@ -84,7 +85,7 @@ public class Book {
 
 	/**
 	 * Returns the room in which this book will take place.
-	 * @return room (room in which this book will take place)
+	 * @return Room in which this book will take place
 	 */
 	public Room getRoom() {
 		return this.room;
@@ -92,7 +93,7 @@ public class Book {
 
 	/**
 	 * Update the room in which this book will take place.
-	 * @param newRoom (room in which this book will take place)
+	 * @param newRoom Room in which this book will take place
 	 */
 	public void setRoom(Room newRoom) {
 		this.room = newRoom;
@@ -100,7 +101,7 @@ public class Book {
 
 	/**
 	 * Returns the login of the teacher who has made this book.
-	 * @return teacherLogin (login of the teacher of this book)
+	 * @return Login of the teacher of this book
 	 */
 	public String getTeacherLogin() {
 		return this.teacherLogin;
@@ -108,7 +109,7 @@ public class Book {
 
 	/**
 	 * Update the login of the teacher who has made this book.
-	 * @param newTeacherLogin (login of the teacher of this book)
+	 * @param newTeacherLogin Login of the teacher of this book
 	 */
 	public void setTeacherLogin(String newTeacherLogin) {
 		this.teacherLogin = newTeacherLogin;
@@ -116,7 +117,7 @@ public class Book {
 
 	/**
 	 * Returns the date at which this booking will begin.
-	 * @return dateBegin  (beginning date of this book)
+	 * @return Beginning date of this book
 	 */
 	public Date getDateBegin() {
 		return this.dateBegin;
@@ -124,7 +125,7 @@ public class Book {
 
 	/**
 	 * Update the date at which this booking will begin. 
-	 * @param newDateBegin (beginning date of this book)
+	 * @param newDateBegin Beginning date of this book
 	 */
 	public void setDateBegin(Date newDateBegin) {
 		this.dateBegin = newDateBegin;
@@ -132,7 +133,7 @@ public class Book {
 
 	/**
 	 * Returns the date at which this booking will end.
-	 * @return dateEnd (ending date of this book)
+	 * @return Ending date of this book
 	 */
 	public Date getDateEnd() {
 		return this.dateEnd;
@@ -140,7 +141,7 @@ public class Book {
 
 	/**
 	 * Update the date at which this booking will end. 
-	 * @param newDateEnd (ending date of this book)
+	 * @param newDateEnd Ending date of this book
 	 */
 	public void setDateEnd(Date newDateEnd) {
 		this.dateEnd = newDateEnd;
@@ -148,7 +149,7 @@ public class Book {
 
 	/**
 	 * Return the string representation of this book.
-	 * @return toString (stringified version of this book)
+	 * @return Stringified version of this book
 	 */
 	public String toString() {
 		String toString = "Booking n°" + this.getId() + "in room " + this.room.getId();
@@ -157,7 +158,7 @@ public class Book {
 
 	/**
 	 * Return the XML representation of this book.
-	 * @return roomXML  (XML representation of this book)
+	 * @return XML representation of this book
 	 */
 	public Element toXML() {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -186,7 +187,8 @@ public class Book {
 
 	/**
 	 * Returns a SQL request to create this Book in the database
-	 * @return success (has the book successfully been created)
+	 * @param timeTableId Id of the timeTable in which this book is
+	 * @return Has the book successfully been created
 	 */
 	public Boolean toSQL(int timeTableId) {
 		return Book.objects.create(timeTableId, this.getId(), this.getTeacherLogin(), 
@@ -195,9 +197,9 @@ public class Book {
 
 	/**
 	 * Generate a MAP of Book objects from a XML representation
-	 * @param bookListXML (XML representation of the books)
-	 * @param books (Map in which we want to store the books)
-	 * @param rooms (Map in which we have stored the rooms)
+	 * @param bookListXML XML representation of the books
+	 * @param books Map in which we want to store the books
+	 * @param rooms Map in which we have stored the rooms
 	 */
 	public static void parseXML(Element bookListXML, Map<Integer, Book>books, Map<Integer, Room>rooms) {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");

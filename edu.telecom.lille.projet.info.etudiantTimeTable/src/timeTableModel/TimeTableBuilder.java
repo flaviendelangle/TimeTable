@@ -7,10 +7,19 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 
+/**
+ * Builder of timetable
+ * For now the algorithms only handle the repartition of the lessons into a time range.
+ * Also contain static functions to check the availaibility of a room.
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ */
 public class TimeTableBuilder {
 
 	/**
@@ -56,6 +65,9 @@ public class TimeTableBuilder {
 	
 	/**
 	 * The constructor.
+	 * @param file Name of the database in which the lessons are stored
+	 * @param dateBegin Beginning date of the new timetable
+	 * @param dateEnd Ending date of the new timetable
 	 */
 	public TimeTableBuilder(String file, Date dateBegin, Date dateEnd) {
 		this.setFile(file);
@@ -66,7 +78,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Update the name of the XML database
-	 * @param newFile
+	 * @param newFile Name of the database in which the lessons are stored
 	 */
 	public void setFile(String newFile) {
 		this.file = newFile;
@@ -74,7 +86,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the name of the XML database
-	 * @return file (name of the file in which the XML is stored)
+	 * @return Name of the database in which the lessons are stored
 	 */
 	public String getFile() {
 		return this.file;
@@ -82,7 +94,7 @@ public class TimeTableBuilder {
 
 	/**
 	 * Update the name of the XML database
-	 * @param newLessons (list of lessons to link to this TimeTableBuilder)
+	 * @param newLessons List of lessons to link to this TimeTableBuilder
 	 */
 	public void setLessons(Map<Integer, Lesson> newLessons) {
 		this.lessons = newLessons;
@@ -90,7 +102,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the name of the XML database
-	 * @return lessons (list of lessons linked to this TimeTableBuilder)
+	 * @return List of lessons linked to this TimeTableBuilder
 	 */
 	public Map<Integer, Lesson> getLessons() {
 		return this.lessons;
@@ -98,7 +110,7 @@ public class TimeTableBuilder {
 
 	/**
 	 * Update the beginning date of the timetable to build
-	 * @param newDateBegin (date a which the repartition must begin)
+	 * @param newDateBegin Date a which the repartition must begin
 	 */
 	public void setDateBegin(Date newDateBegin) {
 		this.dateBegin = newDateBegin;
@@ -106,7 +118,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the beginning date of the timetable to build
-	 * @return dateBegin (date a which the repartition must begin)
+	 * @return Date a which the repartition must begin
 	 */
 	public Date getDateBegin() {
 		return this.dateBegin;
@@ -114,7 +126,7 @@ public class TimeTableBuilder {
 
 	/**
 	 * Update the ending date of the timetable to build
-	 * @param newDateEnd (date a which the repartition must end)
+	 * @param newDateEnd Date a which the repartition must end
 	 */
 	public void setDateEnd(Date newDateEnd) {
 		this.dateEnd = newDateEnd;
@@ -122,7 +134,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the ending date of the timetable to build
-	 * @return dateBegin (date a which the repartition must end)
+	 * @return Date a which the repartition must end
 	 */
 	public Date getDateEnd() {
 		return this.dateEnd;
@@ -138,7 +150,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the map of the lessons
-	 * @return timeMap Map containing all the block in which we can put a lesson
+	 * @return Map containing all the block in which we can put a lesson
 	 */
 	public Map<Date, Boolean> getTimeMap() {
 		return this.timeMap;
@@ -154,7 +166,7 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns the map of the hours of the lessons
-	 * @return lessonDates Map containing all the hours of the lessons
+	 * @return Map containing all the hours of the lessons
 	 */
 	public Map<Lesson, Date[]> getLessonDates() {
 		return this.lessonDates;
@@ -187,8 +199,9 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Try to allocate all the courses into a timetable
+	 * @return Map containing all the lessons as key and the dates as values
 	 */
-	public void create() {
+	public Map<Lesson, Date[]> create() {
 		int safeguard = 0;
 		Map<Integer, Lesson> placedLessons = new HashMap<Integer, Lesson>();
 		this.initTime();
@@ -206,14 +219,11 @@ public class TimeTableBuilder {
 				}
 			}	
 		}
-		for(Entry<Lesson, Date[]> entry : this.getLessonDates().entrySet()) {
-			System.out.println(entry.getKey().getTitle() + " : " + entry.getValue()[0].toString() + " / " + entry.getValue()[1].toString());
-		}
+		return this.getLessonDates();
 	}
 	
 	/**
 	 * Split the time between the beginning date and the ending date into blocks in which we can put lessons
-	 * @return timeMap (Map containing all the block in which we can put a lesson)
 	 */
 	public void initTime() {
 		Map<Date, Boolean> timeMap = new LinkedHashMap<Date, Boolean>();
@@ -229,7 +239,7 @@ public class TimeTableBuilder {
 	/**
 	 * Try to find a place for a lesson
 	 * @param lesson Lesson to place
-	 * @return success Has the lesson successfully been placed ?
+	 * @return Has the lesson successfully been placed ?
 	 */
 	public Boolean placeLesson(Lesson lesson) {
 		int length = Math.round(lesson.getLength()/Lesson.LENGTH);
@@ -260,8 +270,8 @@ public class TimeTableBuilder {
 	/**
 	 * Modify a date to stick with the schedule layout 
 	 * (for example will transform 8:25 into 8:30)
-	 * @param date (date we want to edit)
-	 * @return date (date modified)
+	 * @param date Date we want to edit
+	 * @return Date modified
 	 */
 	@SuppressWarnings("deprecation")
 	public Date getCloserSchedule(Date date) {
@@ -283,8 +293,8 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Returns all the lessons with no prerequisite or only placed prerequisites
-	 * @param placedLessons (all the lessons that have already be placed)
-	 * @return lessons (all the lessons that can be placed in the timetable)
+	 * @param placedLessons All the lessons that have already be placed
+	 * @return All the lessons that can be placed in the timetable
 	 */
 	public Map<Integer, Lesson> getFeasableLessons(Map<Integer, Lesson> placedLessons) {
 		Map<Integer, Lesson> lessons = new HashMap<Integer, Lesson>();
@@ -311,13 +321,13 @@ public class TimeTableBuilder {
 	/**
 	 * Try to find a Room suitable for the requested schedule and with the right capacity.
 	 * It will always the smallest suitable room in term of capacity.
-	 * @param dateBegin (date a which the book must begin)
-	 * @param dateEnd (date a which the book must end)
-	 * @param login (login of the teacher that wants to make this lesson)
-	 * @param minCapacity (number of student in the booking)
-	 * @param rooms (all the rooms stored in the program)
-	 * @param timeTables (all the timetables stored in the program)
-	 * @return room (a room that can host the lesson)
+	 * @param dateBegin Date a which the book must begin
+	 * @param dateEnd Date a which the book must end
+	 * @param login Login of the teacher that wants to make this lesson
+	 * @param minCapacity Number of student in the booking
+	 * @param rooms All the rooms stored in the program
+	 * @param timeTables All the timetables stored in the program
+	 * @return A room that can host the lesson
 	 */
 	public static Room findFreeRoom(Date dateBegin, Date dateEnd, String login, int minCapacity, Map<Integer, Room>rooms, Map<Integer, TimeTable>timeTables) {
 		Map<Integer, Room> compatibleRooms = new HashMap<Integer, Room>();
@@ -338,13 +348,14 @@ public class TimeTableBuilder {
 
 	/**
 	 * Check if the booking is possible (most complete version)
-	 * @param timeTableId (ID the of the timetable in which we want to make the book)
-	 * @param bookingId (ID we want to name the book with)
-	 * @param teacherLogin (login of the teacher that wants to make this lesson)
-	 * @param dateBegin (date a which the book must begin)
-	 * @param dateEnd (date a which the book must end)
-	 * @param room (room in which we want to make the lesson)
-	 * @return possible (is this book possible ?)
+	 * @param timeTableId ID the of the timetable in which we want to make the book
+	 * @param bookingId ID we want to name the book with
+	 * @param teacherLogin Login of the teacher that wants to make this lesson
+	 * @param dateBegin Date a which the book must begin
+	 * @param dateEnd Date a which the book must end
+	 * @param room Room in which we want to make the lesson
+	 * @param timeTables All the TimeTables in which we must search for the books
+	 * @return Is this book possible ?
 	 */
 	public static Boolean isBookingPossible(int timeTableId, int bookingId, String teacherLogin, Date dateBegin, Date dateEnd, Room room, Map<Integer, TimeTable>timeTables) {
 		TimeTable timeTable = timeTables.get(timeTableId);
@@ -361,9 +372,9 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Check if the ID of a book is free to use
-	 * @param timeTable (timetable in which the book has been made)
-	 * @param bookingId (actual ID of the book)
-	 * @return free (is the bookId free in this timetable ?)
+	 * @param timeTable Timetable in which the book has been made
+	 * @param bookingId Actual ID of the book
+	 * @return Is the bookId free in this timetable ?
 	 */
 	public static Boolean isBookIdFree(TimeTable timeTable, int bookingId) {
 		for(Entry<Integer, Book> entryB : timeTable.getBooks().entrySet()) {
@@ -378,11 +389,12 @@ public class TimeTableBuilder {
 	/**
 	 * Check if the booking is possible by checking the dates of every other booking in this room
 	 * Warning : This method doesn't check if the ID is already taken 
-	 * @param teacherLogin (login of the teacher that wants to make this lesson)
-	 * @param dateBegin (date a which the book must begin)
-	 * @param dateEnd (date a which the book must end)
-	 * @param room (room in which we want to make the lesson)
-	 * @return possible (is this book possible ?)
+	 * @param teacherLogin Login of the teacher that wants to make this lesson
+	 * @param dateBegin Date a which the book must begin
+	 * @param dateEnd Date a which the book must end
+	 * @param room Room in which we want to make the lesson
+	 * @param timeTables All the TimeTables in which we must search for the books
+	 * @return Is this book possible ?
 	 */
 	public static Boolean isBookingPossible(String teacherLogin, Date dateBegin, Date dateEnd, Room room, Map<Integer, TimeTable>timeTables) {
 		for(Entry<Integer, TimeTable>entryTT : timeTables.entrySet()) {
@@ -404,11 +416,11 @@ public class TimeTableBuilder {
 	/**
 	 * Check if a book is still possible 
 	 * (to execute if the XML database has been updated since the last time it had been loaded)
-	 * @param rootXML (XML representation of the actual state of the database)
-	 * @param timeTableId (ID in which we want to check if the book is still possible)
-	 * @param bookId (ID of the book we want to check if it is still possible)
-	 * @param timeTablesLive (Map of all the timeTables actually in the program)
-	 * @return isConclict (is there a conflict for this book ?)
+	 * @param rootXML XML representation of the actual state of the database
+	 * @param timeTableId ID in which we want to check if the book is still possible
+	 * @param bookId ID of the book we want to check if it is still possible
+	 * @param timeTablesLive Map of all the timeTables actually in the program
+	 * @return Is there a conflict for this book ?
 	 */
 	public static Boolean checkBookingConflict(Element rootXML, int timeTableId, int bookId, Map<Integer, TimeTable>timeTablesLive) {
 		Map<Integer, TimeTable> timeTablesFile = new HashMap<Integer, TimeTable>();
@@ -446,15 +458,15 @@ public class TimeTableBuilder {
 	
 	/**
 	 * Try to resolve a conflictual booking
-	 * @param timeTable (timeTable in which we want to resolve a book conflict)
-	 * @param bookInd (ID of the book we want to resolve)
-	 * @param dateBegin (date a which the book must begin)
-	 * @param dateEnd (date a which the book must end)
-	 * @param login (login of the teacher that wants to make this lesson)
-	 * @param exRoom (room in which this book was originally)
-	 * @param rooms (all the rooms stored in the program)
-	 * @param timeTables (all the timetables stored in the program)
-	 * @return conflict
+	 * @param timeTable TimeTable in which we want to resolve a book conflict
+	 * @param bookId ID of the book we want to resolve
+	 * @param dateBegin Date a which the book must begin
+	 * @param dateEnd Date a which the book must end
+	 * @param login Login of the teacher that wants to make this lesson
+	 * @param exRoom Room in which this book was originally
+	 * @param rooms All the rooms stored in the program
+	 * @param timeTables All the timetables stored in the program
+	 * @return Was there a conflict ?
 	 */
 	public static Boolean resolveBookingConflict(TimeTable timeTable, int bookId, Date dateBegin, Date dateEnd, String login, Room exRoom, Map<Integer, Room>rooms, Map<Integer, TimeTable>timeTables) {
 		System.out.println("We are sorry to announce you that the room " + exRoom.getId() + " is not available anymore for your request.");
@@ -465,15 +477,26 @@ public class TimeTableBuilder {
 			return true;
 		}
 		else {
+			Scanner reader = new Scanner(System.in);
 			// There is a room compatible for this book
 			System.out.println("The room " + room.getId() + " is compatible with yout demand. Do you want to book it ? (y/n)");
-			timeTable.addBooking(bookId, login, dateBegin, dateEnd, room);
+			if(reader.next().toLowerCase().equals("y")) {
+				timeTable.addBooking(bookId, login, dateBegin, dateEnd, room);
+			}
 			if(!TimeTableBuilder.isBookIdFree(timeTable, bookId)) {
 				// The ID of this book is already taken
 				int newId = timeTable.getBookingsMaxId() + 1;
 				System.out.println("Finally, the ID your requested is not enable, do you want to use the ID " + newId + " instead ? (y/n)");
+				if(reader.next().toLowerCase().equals("y")) {
+					timeTable.addBooking(newId, login, dateBegin, dateEnd, room);
+				}
+				else {
+					System.out.println("The book is impossible to store, sorry");
+				}
+				reader.close();
 				return true;
 			}
+			reader.close();
 			return false;
 		}		
 	}

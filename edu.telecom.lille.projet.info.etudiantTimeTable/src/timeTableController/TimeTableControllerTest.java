@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +18,13 @@ import org.junit.Test;
 import timeTableModel.Room;
 import timeTableModel.TimeTable;
 import timeTableModel.TimeTableBuilder;
+/**
+ * Unit testing of the program
+ * 
+ * @author Flavien DELANGLE and Marie PAYET
+ * @version 06/2016
+ * 
+ */
 
 public class TimeTableControllerTest {
 
@@ -62,9 +68,9 @@ public class TimeTableControllerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		//this.controller.tTDB.saveDB();
+		this.controller.tTDB.saveDB();
 	}
-	/*
+	
 	@Test
 	public void testLoadDBRoom() {
 		assertEquals(this.controller.tTDB.getRoomsSize(), 3);
@@ -228,9 +234,8 @@ public class TimeTableControllerTest {
 			
 			// 5) We try to save the XML database
 			System.out.println("5) We try to save the XML database");
-			this.controller.saveDB();
 		}
-	}*/
+	}
 	
 	@Test
 	public void testBuildTimeTable() throws ParseException {
