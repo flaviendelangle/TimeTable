@@ -54,8 +54,8 @@ public class TimeTable {
 	
 	/**
 	 * The constructor.
-	 * @param groupId (ID of the group linked to this TimeTable)
-	 * @param books (all the books already linked to this group)
+	 * @param groupId the ID of the group linked to this TimeTable
+	 * @param books all the books already linked to this group
 	 */
 	public TimeTable(int groupId, Map<Integer,Book> books) {
 		this.setId(groupId);
@@ -65,7 +65,7 @@ public class TimeTable {
 
 	/**
 	 * The constructor.
-	 * @param groupId (ID of the group linked to this TimeTable)
+	 * @param groupId the ID of the group linked to this TimeTable
 	 */
 	public TimeTable(int groupId) {
 		this(groupId, new HashMap<Integer, Book>());
@@ -73,9 +73,9 @@ public class TimeTable {
 
 	/**
 	 * The constructor.
-	 * @param timeTableId (ID of the timeTable we want to create)
-	 * @param login (login of the teacher who wants to create a timetable)
-	 * @param books (all the books already linked to this group)
+	 * @param timeTableId the ID of the timeTable we want to create
+	 * @param login the login of the teacher who wants to create a timetable
+	 * @param books all the books already linked to this group
 	 */
 	public TimeTable(int timeTableId, String login, Map<Integer,Book> books) {
 		this.setId(timeTableId);
@@ -85,8 +85,8 @@ public class TimeTable {
 
 	/**
 	 * The constructor.
-	 * @param timeTableId (ID of the timeTable we want to create)
-	 * @param login (login of the teacher who wants to create a timetable) 
+	 * @param timeTableId the ID of the timeTable we want to create
+	 * @param login the login of the teacher who wants to create a timetable 
 	 */
 	public TimeTable(int timeTableId, String login) {
 		this(timeTableId, login, new HashMap<Integer, Book>());
@@ -94,7 +94,7 @@ public class TimeTable {
 
 	/**
 	 * Returns the identifier of this timetable.
-	 * @return id  (id of this timetable)
+	 * @return id  the id of this timetable
 	 */
 	public int getId() {
 		return this.id;
@@ -102,7 +102,7 @@ public class TimeTable {
 
 	/**
 	 * Update the identifier of this timetable.
-	 * @param newId (id of this timetable)
+	 * @param newId the id of this timetable
 	 */
 	public void setId(int newId) {
 		this.id = newId;
@@ -110,7 +110,7 @@ public class TimeTable {
 
 	/**
 	 * Returns the type of this timetable.
-	 * @return type (type of this timetable)
+	 * @return type the type of this timetable
 	 */
 	public String getType() {
 		return this.type;
@@ -118,7 +118,7 @@ public class TimeTable {
 
 	/**
 	 * Update the type of this timetable.
-	 * @param newType (type of this timetable)
+	 * @param newType the type of this timetable
 	 */
 	public void setType(String newType) {
 		this.type = newType;
@@ -126,7 +126,7 @@ public class TimeTable {
 
 	/**
 	 * Returns the identifier of the group of this timetable.
-	 * @return groupId (ID of the group of this timetable)
+	 * @return groupId the ID of the group of this timetable
 	 */
 	public int getGroupId() {
 		return this.groupId;
@@ -134,7 +134,7 @@ public class TimeTable {
 
 	/**
 	 * Update the identifier of the group of this timetable.
-	 * @param newGroupId (ID of the group of this timetable)
+	 * @param newGroupId the ID of the group of this timetable
 	 */
 	public void setGroupId(int newGroupId) {
 		this.groupId = newGroupId;
@@ -142,7 +142,7 @@ public class TimeTable {
 
 	/**
 	 * Returns the login of the teacher of this timetable.
-	 * @return login (login of the teacher of this timetable)
+	 * @return login the login of the teacher of this timetable
 	 */
 	public String getLogin() {
 		return this.login;
@@ -150,7 +150,7 @@ public class TimeTable {
 
 	/**
 	 * Update the login of the teacher of this timetable.
-	 * @param newLogin (login of the teacher of this timetable) 
+	 * @param newLogin the login of the teacher of this timetable 
 	 */
 	public void setLogin(String newLogin) {
 		this.login = newLogin;
@@ -158,7 +158,7 @@ public class TimeTable {
 	
 	/**
 	 * Returns the books linked to this timetable.
-	 * @return books (books linked to this timetable) 
+	 * @return books the books linked to this timetable 
 	 */
 	public Map<Integer,Book> getBooks() {
 		return this.books;
@@ -166,7 +166,7 @@ public class TimeTable {
 
 	/**
 	 * Update the books linked to this timetable. 
-	 * @param newBooks (books linked to this timetable)  
+	 * @param newBooks the books linked to this timetable  
 	 */
 	public void setBooks(Map<Integer,Book> newBooks) {
 		this.books = newBooks;
@@ -174,8 +174,8 @@ public class TimeTable {
 	
 	/**
 	 * Returns the booking which have the correct identifier
-	 * @param bookId (id of the book we want to retrieve)
-	 * @return book (book with the correct id)
+	 * @param bookId the id of the book we want to retrieve
+	 * @return book the book with the correct id
 	 */
 	public Book getBook(int bookId) {
 		return this.getBooks().get(bookId);
@@ -183,12 +183,12 @@ public class TimeTable {
 
 	/**
 	 * Add a booking to this timetable.
-	 * @param bookingId (id of the new book)
-	 * @param teacherLogin (login of the teacher of the new book)
-	 * @param dateBegin (beginning date of the new book)
-	 * @param dateEnd (ending date of the new book)
-	 * @param room (room of the new book)
-	 * @return success (has the book been successfully created)
+	 * @param bookingId the id of the new book
+	 * @param teacherLogin the login of the teacher of the new book
+	 * @param dateBegin the beginning date of the new book
+	 * @param dateEnd the ending date of the new book
+	 * @param room the room of the new book
+	 * @return success has the book been successfully created
 	 */
 	public void addBooking(int bookingId, String teacherLogin, Date dateBegin, Date dateEnd, Room room) {
 		Book book = new Book(bookingId, room, teacherLogin, dateBegin, dateEnd);
@@ -197,8 +197,8 @@ public class TimeTable {
 
 	/**
 	 * Remove a booking from this timetable
-	 * @param bookId (id of the book we want to remove)
-	 * @return success (has the book been removed)
+	 * @param bookId the id of the book we want to remove
+	 * @return success has the book been removed
 	 */
 	public Boolean removeBook(int bookId) {
 		if(this.getBooks().containsKey(bookId)) {
@@ -212,7 +212,7 @@ public class TimeTable {
 	
 	/**
 	 * Return a table of strings containing the identifier of all the bookings linked to this timetable
-	 * @return booksId (array with all the ids of the books of this timetable)
+	 * @return booksId array with all the ids of the books of this timetable
 	 */
 	public String[] getBookingsId() {
 		int length = this.getBooks().size();
@@ -227,7 +227,7 @@ public class TimeTable {
 
 	/**
 	 * Return the maximum identifier of the bookings of this timetable
-	 * @return bookID (maximum id of all the books of this timetable)
+	 * @return bookID maximum id of all the books of this timetable
 	 */
 	public int getBookingsMaxId() {
 		int bookId;
@@ -242,8 +242,8 @@ public class TimeTable {
 	
 	/**
 	 * Create two hash tables that contains all the beginning dates and ending dates of the bookings of this timetable
-	 * @param dateBegin (list of all the beginning date of this timetable)
-	 * @param dateEnd (list of all the ending date of this timetable)
+	 * @param dateBegin list of all the beginning date of this timetable
+	 * @param dateEnd list of all the ending date of this timetable
 	 */
 	public void getBookingsDate(Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
 		for(Entry<Integer, Book> entry : this.getBooks().entrySet()) {
@@ -254,7 +254,7 @@ public class TimeTable {
 	
 	/**
 	 * Return the string representation of this timetable.
-	 * @return toString (stringified version of this timetable)
+	 * @return toString stringified version of this timetable
 	 */
 	public String toString() {
 		String toString;
@@ -269,7 +269,7 @@ public class TimeTable {
 	
 	/**
 	 * Return the XML representation of the timetable
-	 * @return roomXML (XML representation of this timetable)
+	 * @return roomXML XML representation of this timetable
 	 */
 	public Element toXML() {
 		Element timeTableXML = new Element("TimeTable");
@@ -296,7 +296,7 @@ public class TimeTable {
 
 	/**
 	 * Returns a SQL request to create this TimeTable in the database
-	 * @return (has the timetable successfully been created ?)
+	 * @return has the timetable successfully been created ?
 	 */
 	public Boolean toSQL() {
 		Boolean success = TimeTable.objects.create(this.getId());
@@ -308,9 +308,9 @@ public class TimeTable {
 
 	/**
 	 * Generate a MAP of TimeTable objects from a XML representation
-	 * @param timeTableListXML (XML representation of the timetables)
-	 * @param timeTables (Map in which we want to store the timtables from the database)
-	 * @param rooms (Map in which we have store the rooms)
+	 * @param timeTableListXML XML representation of the timetables
+	 * @param timeTables Map in which we want to store the timtables from the database
+	 * @param rooms Map in which we have store the rooms
 	 */
 	public static void parseXML(Element timeTableListXML, Map<Integer, TimeTable>timeTables, Map<Integer, Room>rooms) {
 		List<Element> timeTablesXML = timeTableListXML.getChildren("TimeTable");

@@ -76,6 +76,7 @@ public class TimeTableDB {
 	
 	/**
 	 * The constructor.
+	 * @param fileXML file where all the XML database is stored
 	 */
 	public TimeTableDB(String fileXML) {
 		this.setFileXML(fileXML);
@@ -84,7 +85,7 @@ public class TimeTableDB {
 		
 	/**
 	 * Check is the SQL storage is activated
-	 * @return SQL
+	 * @return boolean which indicates if the SQL is activated '1' or not '0'
 	 */
 	public Boolean isSQL() {
 		return TimeTableDB.SQLactivated;
@@ -92,7 +93,7 @@ public class TimeTableDB {
 
 	/**
 	 * Update the name of the XML database.
-	 * @param newFile 
+	 * @param newFileXML a file which will be set up as our new XML database
 	 */
 	public void setFileXML(String newFileXML) {
 		TimeTableDB.fileXML = newFileXML;
@@ -100,7 +101,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Returns the name of the XML database.
-	 * @return file 
+	 * @return fileXML a file with our XML database 
 	 */
 	public String getFileXML() {
 		return TimeTableDB.fileXML;
@@ -108,7 +109,7 @@ public class TimeTableDB {
 
 	/**
 	 * Update the name of the SQLite database. 
-	 * @param newFile 
+	 * @param newFileSQL a file which will be set up as our new SQL database
 	 */
 	public void setFileSQL(String newFileSQL) {
 		TimeTableDB.fileSQL = newFileSQL;
@@ -116,7 +117,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Returns the name of the SQLite database.
-	 * @return file 
+	 * @return fileSQL name of the SQL database
 	 */
 	public String getFileSQL() {
 		return TimeTableDB.fileSQL;
@@ -124,6 +125,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Update the date of the last modification of the XML database
+	 * @param modificationDate the new date of modification of the XML database
 	 */
 	public void setModificationDate(long newModificationDate) {
 		this.modificationDate = newModificationDate;
@@ -131,6 +133,7 @@ public class TimeTableDB {
 
 	/**
 	 * Returns the date of the last modification of the XML database
+	 * @return modificationDate the last date of modification of the XML database
 	 */
 	public long getModificationDate() {
 		return this.modificationDate;
@@ -138,7 +141,7 @@ public class TimeTableDB {
 
 	/**
 	 * Returns timeTablesGroup.
-	 * @return timeTablesGroup 
+	 * @return timeTablesGroup a list of all the timeTables
 	 */
 	public Map<Integer, TimeTable> getTimeTables() {
 		return this.timeTables;
@@ -146,7 +149,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Sets a value to attribute timeTables. 
-	 * @param newTimeTables 
+	 * @param newTimeTables list which contains timeTables
 	 */
 	public void setTimeTables(Map<Integer, TimeTable> newTimeTables) {
 		this.timeTables = newTimeTables;
@@ -154,7 +157,7 @@ public class TimeTableDB {
 
 	/**
 	 * Returns rooms.
-	 * @return rooms 
+	 * @return rooms a list with all the rooms of the system 
 	 */
 	public Map<Integer, Room> getRooms() {
 		return this.rooms;
@@ -162,23 +165,25 @@ public class TimeTableDB {
 
 	/**
 	 * Sets a value to attribute rooms. 
-	 * @param newRooms 
+	 * @param newRooms a list which contains the new rooms to set
 	 */
 	public void setRooms(Map<Integer, Room> newRooms) {
 		this.rooms = newRooms;
 	}
 	
 	/**
-	 * Returns modification.
-	 * @return modification
+	 * Returns modifications of the database.
+	 * @return modification contains all the modification of the database
 	 */
 	public String[] getModification() {
 		return this.modification;
 	}
 	
 	/**
-	 * Update the type of the last modification
-	 * @param newModification
+	 * Update the type of the new modification
+	 * @param newType the type of the new modification done
+	 * @param newValue the change done in the modification 
+	 * @param parentId the Id that could be impact by the modification 
 	 */
 	public void setModification(String newType, String newValue, int parentId) {
 		this.setModification(newType, newValue, parentId, false);
@@ -189,6 +194,10 @@ public class TimeTableDB {
 	
 	/**
 	 * Update the type of the last modification (no saving of the database)
+	 * @param newType the type of the new modification done
+	 * @param newValue the change done in the modification 
+	 * @param parentId the Id that could be impact by the modification 
+	 * @param isTest boolean that will indicate that this modification is just a test and that it doen not have to be save in the database  
 	 */
 	public void setModification(String newType, String newValue, int parentId, Boolean isTest) {
 		this.modification[0] = newType;
@@ -198,6 +207,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Save the current state of the database into a XML file
+	 * @return success indicates if the save of the DB has successfully be done 
 	 */
 	public boolean saveDB() {
 		if(this.isSQL()) {
@@ -217,6 +227,7 @@ public class TimeTableDB {
 
 	/**
 	 * Load a XML file as the current database of the program
+	 * @return success indicates if the load of the DB has successfully be done 
 	 */
 	public boolean loadDB() {
 		if(this.isSQL()) {
@@ -231,7 +242,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Return the timestamp of the last modification of the XML database
-	 * @return modificationDate
+	 * @return modificationDate the date of the last modification done in the database 
 	 */
 	public long getLastModificationXML() {
 		File file = new File(this.getFileXML());
@@ -240,14 +251,15 @@ public class TimeTableDB {
 	
 	/**
 	 * Check if the XML database has been modified since the last time it has beed loaded
-	 * @return modified
+	 * @return modified boolean which indicates if the database has been changed since the last load 
 	 */
 	public Boolean modifiedXML() {
 		return (this.getModificationDate() != this.getLastModificationXML());
 	}
 	
 	/**
-	 * Check if the XML database and the live objects are
+	 * Check if the XML database and the live objects are conflictual
+	 * @return conflict boolean which indicates true if the database change can cause any conflict  
 	 */
 	public Boolean conflictualXMLDB() {
 		Boolean conflict;
@@ -284,7 +296,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Save the actual state of the program into a XML database
-	 * @return success
+	 * @return success if the program has been correctly saved 
 	 */
 	public Boolean saveXML() {
 		Element rootXML = this.getLiveXML();
@@ -305,9 +317,9 @@ public class TimeTableDB {
 	
 	/**
 	 * Load the data of the XML database into the program
-	 * @param timeTables
-	 * @param rooms
-	 * @return success
+	 * @param timeTables the list of all the timeTables
+	 * @param rooms the list of all the rooms
+	 * @return success boolean which indicates true if the data has been correctly load 
 	 */
 	public Boolean loadXML(Map<Integer, TimeTable> timeTables, Map<Integer, Room> rooms) {
 		Element rootXML = null;
@@ -329,6 +341,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Return the XML representation of the live date
+	 * @return rootXML the representation of the live database 
 	 */
 	public Element getLiveXML() {
 		Element rootXML = new Element("TimeTablesDB");
@@ -352,7 +365,7 @@ public class TimeTableDB {
 	 * Return the content of the XML database
 	 * @throws IOException 
 	 * @throws JDOMException 
-	 * @return rootXML
+	 * @return rootXML the representation of the live database 
 	 */
 	public Element getXML() throws JDOMException, IOException {
 		org.jdom2.Document document = null;
@@ -367,7 +380,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Create a connection between this program and the SQLite database
-	 * @return 
+	 * @return success which indicates if the initialization has been correctly done 
 	 */
 	public Boolean initSQL() {
 		if(this.isSQL()) {
@@ -383,6 +396,7 @@ public class TimeTableDB {
 	
 	/**
 	 * Close the connection and the statement with the SQLite database
+	 * @return success which indicates if the close of the connection has been correctly done 
 	 */
 	public Boolean closeSQL() {
 		Boolean success;
@@ -403,6 +417,7 @@ public class TimeTableDB {
 	/**
 	 * Create a SQLite database with the data of a XML database
 	 * @throws SQLException 
+	 * @return success which indicates if the conversion has been correctly done 
 	 */
 	public Boolean XMLtoSQL() {
 		Boolean success = this.loadXML(this.timeTables, this.rooms);
@@ -442,6 +457,11 @@ public class TimeTableDB {
 		return success;
 	}
 	
+	/**
+	 * Make SQL request
+	 * @param request name of the request 
+	 * @return success which indicates if the request has been correctly done 
+	 */
 	public Boolean sql(String request) {
 		Boolean success;
 		try {
@@ -455,6 +475,11 @@ public class TimeTableDB {
 		return success;
 	}
 	
+	/**
+	 * Check if room exist 
+	 * @param roomId the Id of the room we want to check 
+	 * @return containsRoom which indicates if the room exists 
+	 */
 	public Boolean containsRoom(int roomId) {
 		if(this.isSQL()) {
 			return Room.objects.exist(roomId, false);
@@ -464,6 +489,12 @@ public class TimeTableDB {
 		}
 	}
 	
+	/**
+	 * Check if room exist 
+	 * @param key the key (Id of the room) we want to check 
+	 * @param roomId the Id of the room we want to check 
+	 * @return containsRoom which indicates if the room exists 
+	 */
 	public Boolean checkRoom(int key, int roomId, int capacity) {
 		if(this.isSQL()) {
 			return Room.objects.exist(roomId, capacity, false);			
@@ -479,6 +510,10 @@ public class TimeTableDB {
 		}
 	}
 	
+	/**
+	 * Returns the size of the rooms 
+	 * @return size the the length of rooms
+	 */
 	public int getRoomsSize() {
 		if(this.isSQL()) {
 			return Room.objects.length();		
@@ -488,6 +523,11 @@ public class TimeTableDB {
 		}
 	}
 
+	/**
+	 * Check if a TimeTableGroup exists 
+	 * @param timeTableId the Id of the timeTable we want to check 
+	 * @return containsTimeTable which indicates if the timeTable exists
+	 */
 	public Boolean containsTimeTable(int timeTableId) {
 		if(this.isSQL()) {
 			return TimeTable.objects.exist(timeTableId, false);
@@ -496,7 +536,12 @@ public class TimeTableDB {
 			return this.getTimeTables().containsKey(timeTableId);
 		}
 	}
-
+	
+	/**
+	 * Check if a TimeTableTeacher exists 
+	 * @param login the login of the timeTableTeacher we want to check 
+	 * @return containsTimeTable which indicates if the timeTable exists
+	 */
 	public Boolean containsTimeTable(String login) {
 		if(this.isSQL()) {
 			return TimeTable.objects.exist(login, false);
@@ -511,6 +556,10 @@ public class TimeTableDB {
 		}
 	}
 
+	/**
+	 * Returns the size of the timeTables
+	 * @return size the the length of timeTables
+	 */
 	public int getTimeTablesSize() {
 		if(this.isSQL()) {
 			return TimeTable.objects.length();		
@@ -520,6 +569,12 @@ public class TimeTableDB {
 		}
 	}
 	
+	/**
+	 * Check if a Book exists 
+	 * @param timeTableId the Id of the timeTable where the book we want to check is supposed to be  
+	 * @param bookingId the Id of the book
+	 * @return containsBook which indicates if the book exists
+	 */
 	public Boolean containsBook(int timeTableId, int bookingId) {
 		if(this.isSQL()) {
 			return Book.objects.exist(timeTableId, bookingId, false);
@@ -534,6 +589,16 @@ public class TimeTableDB {
 		}			
 	}
 	
+	/**
+	 * Check if a Book exists 
+	 * @param timeTableId the Id of the timeTable where the book we want to check is supposed to be  
+	 * @param bookingId the Id of the book
+	 * @param login the login of the teacher associated to the book
+	 * @param dateBegin the date of beginning of the book 
+	 * @param dateEnd the date of end of the book 
+	 * @param roomId the id if the room concerned 
+	 * @return containsBook which indicates if the book exists
+	 */
 	public Boolean containsBook(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
 		if(this.isSQL()) {
 			return Book.objects.exist(timeTableId, bookingId, login, dateBegin, dateEnd, roomId, false);
@@ -555,6 +620,10 @@ public class TimeTableDB {
 		}		
 	}
 
+	/**
+	 * Returns the size of the books
+	 * @return size the the length of books
+	 */
 	public int getBooksSize(int timeTableId) {
 		if(this.isSQL()) {
 			return Book.objects.length(timeTableId);		
@@ -566,9 +635,9 @@ public class TimeTableDB {
 
 	/**
 	 * Returns the login of the teacher of a given booking.
-	 * @param timeTableId 
-	 * @param bookId 
-	 * @return teacherLogin
+	 * @param timeTableId the id of the timetable
+	 * @param bookId the id of the book
+	 * @return teacherLogin the login associated with the teacher who have done the book
 	 */
 	public String getTeacherLogin(int timeTableId, int bookId) {
 		String teacherLogin = "";
@@ -595,7 +664,7 @@ public class TimeTableDB {
 	 * Description of the method roomsIdToString.
 	 * We recover all the keys of the map room in a Set.
 	 * Then we cast the set in an array of String.
-	 * @return String array (content : ID of the rooms)
+	 * @return StringArray content : ID of the rooms
 	 */
 	public String[] roomsIdToString() {
 		if(this.isSQL()) {
@@ -626,7 +695,7 @@ public class TimeTableDB {
 	/**
 	 * Description of the method roomsToString.
 	 * We browse all the map rooms to see the values of each Room and we put the informations into an array of String (thanks to the function toString() of Room)
-	 * @return String array (content : ID of the rooms + capacity)
+	 * @return StringArray content : ID of the rooms + capacity
 	 */
 	public String[] roomsToString() {
 		if(this.isSQL()) {
@@ -660,7 +729,7 @@ public class TimeTableDB {
 	 * Description of the method timeTablesIDToString.
 	 * We recover all the keys of the map timeTable in a Set.
 	 * Then we cast the set in an array of String.
-	 * @return String array (content : ID of the timeTable)
+	 * @return StringArray content : ID of the timeTable
 	 */
 	public String[] timeTablesIDToString() {
 		if(this.isSQL()) {
@@ -692,8 +761,8 @@ public class TimeTableDB {
 	 * Description of the method booksIdToString.
 	 * We get the timeTable matching with the ID.
 	 * Then we use the function getBookingsId  of timeTable to return a String Array containing the BooksId. 
-	 * @param timeTableId 
-	 * @return String array (content : booksId)
+	 * @param timeTableId the id of the timetable
+	 * @return StringArray content : booksId
 	 */
 	public String[] booksIdToString(Integer timeTableId) {
 		if(this.isSQL()) {
@@ -722,9 +791,9 @@ public class TimeTableDB {
 	 * Description of the method addRoom.
 	 * We check if the room we want to add already exists or not.
 	 * If the room does not exist we add it to the map.
-	 * @param roomId (Integer)
-	 * @param capacity (Integer)
-	 * @return Boolean (true if the room is correctly added, false if the room already exist)
+	 * @param roomId the id of the room 
+	 * @param capacity the capacity of the room 
+	 * @return success true if the room is correctly added, false if the room already exists
 	 * @throws SQLException 
 	 */
 	public Boolean addRoom(Integer roomId, Integer capacity) {
@@ -757,8 +826,8 @@ public class TimeTableDB {
 	 * Description of the method removeRoom.
 	 * We check if the room we want to remove exists or not.
 	 * If the room exists we remove it from the map.
-	 * @param roomId (Integer)
-	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
+	 * @param roomId the id of the room
+	 * @return success true if the room is correctly removed, false if the room does not exist
 	 */
 	public Boolean removeRoom(int roomId) {
 		Boolean success;
@@ -782,9 +851,9 @@ public class TimeTableDB {
 	 * Description of the method getRoom.
 	 * We get the timeTable matching with the ID.
 	 * Then we use functions existing in Room to return the Room Id.
-	 * @param timeTableId (Integer)
-	 * @param bookId (Integer)
-	 * @return Id of the Room we search (Integer)
+	 * @param timeTableId the id of the timetable
+	 * @param bookId the id of the book
+	 * @return roomId the Id of the Room we search 
 	 */
 	public Integer getRoom(int timeTableId, int bookId) {
 		if(this.isSQL()) {
@@ -811,8 +880,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method addTimeTable.
-	 * @param timeTableId 
-	 * @return 
+	 * @param timeTableId the id of the timetable
+	 * @return success true if the timetable has been correctly added, false if not
 	 */
 	public Boolean addTimeTable(int groupId) {
 		Boolean success;
@@ -838,6 +907,13 @@ public class TimeTableDB {
 		}
 		return success;
 	}
+	
+	/**
+	 * Description of the method addTimeTable.
+	 * @param timeTableId the id of the timetable
+	 * @param teacherLogin the login of the teacher 
+	 * @return success true if the timetable has been correctly added, false if not
+	 */
 	public Boolean addTimeTable(int timeTableId, String teacherLogin) {
 		Boolean success;
 		if(this.isSQL()) {
@@ -866,8 +942,8 @@ public class TimeTableDB {
 
 	/**
 	 * Description of the method removeTimeTable.
-	 * @param timeTableId 
-	 * @return 
+	 * @param timeTableId the id ofthe timetable we want to remove 
+	 * @return success true if the timetable has been correctly removed, false if not
 	 */
 	public Boolean removeTimeTable(int timeTableId) {
 		Boolean success;
@@ -892,13 +968,13 @@ public class TimeTableDB {
 	 * Check if the booking is possible by checking if :
 	 * 	- the timetable exists
 	 *  - the room exists
-	 * @param timeTableId 
-	 * @param bookingId 
-	 * @param login 
-	 * @param dateBegin 
-	 * @param dateEnd 
-	 * @param roomId 
-	 * @return success
+	 * @param timeTableId the id ofthe timetable
+	 * @param bookingId the id of the book
+	 * @param login the login of the timetable teacher 
+	 * @param dateBegin date of beginning of the book 
+	 * @param dateEnd date of end of the book 
+	 * @param roomId the id of the room we want to book
+	 * @return success true if the book has been correctly done, false if not
 	 */
 	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
 		Boolean success;
@@ -931,10 +1007,10 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Description of the method getBookingsDate.
-	 * @param timeTableId 
-	 * @param dateBegin 
-	 * @param dateEnd 
+	 * Get the booking dates 
+	 * @param timeTableId the id of the timetable
+	 * @param dateBegin date of beginning of the book 
+	 * @param dateEnd date of end of the book 
 	 */
 	public void getBookingsDate(int timeTableId, Hashtable<Integer, Date> dateBegin, Hashtable<Integer, Date> dateEnd) {
 		if(this.isSQL()) {
@@ -959,9 +1035,9 @@ public class TimeTableDB {
 
 	/**
 	 * Remove a booking from a given timetable.
-	 * @param timeTableId 
-	 * @param bookId 
-	 * @return success
+	 * @param timeTableId the id of the timetable
+	 * @param bookId the id of the book 
+	 * @return success true if the book has been correctly removed, false if not
 	 */
 	public Boolean removeBook(int timeTableId, int bookId) {
 		Boolean success;
@@ -984,8 +1060,8 @@ public class TimeTableDB {
 
 	/**
 	 * Return the maximum identifier of the bookings of a given timetable.
-	 * @param timeTableId 
-	 * @return bookingsMaxId
+	 * @param timeTableId the id of the timetable
+	 * @return bookingsMaxId the maximum identifier of the bookings
 	 */
 	public int getBookingsMaxId(int timeTableId) {
 		if(this.isSQL()) {
@@ -1018,7 +1094,7 @@ public class TimeTableDB {
 
 	/**
 	 * Return the maximum identifier of all the timetables.
-	 * @return timeTablesMaxId
+	 * @return timeTablesMaxId the maximum identifier
 	 */
 	public int getTimeTableMaxId() {
 		if(this.isSQL()) {
