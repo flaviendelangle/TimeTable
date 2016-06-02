@@ -1,7 +1,0 @@
-
-Thu May 19 14:47:22 CEST 2016
-================================================================================
-Start of user code for method toString
-		String toString = "";
-		return toString;
-		// End of user code
