@@ -234,7 +234,7 @@ public class TimeTableControllerTest {
 	
 	@Test
 	public void testBuildTimeTable() throws ParseException {
-		Date dateBegin = this.dateformat.parse("02/05/2016 08:30:00");
+		Date dateBegin = this.dateformat.parse("02/05/2016 08:28:35");
 		Date dateEnd = this.dateformat.parse("06/05/2016 18:00:00");
 		TimeTableBuilder builder = new TimeTableBuilder("lessonsDB.xml", dateBegin, dateEnd);
 		builder.create();

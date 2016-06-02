@@ -1,8 +1,10 @@
 package timeTableModel;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -30,6 +32,27 @@ public class TimeTableBuilder {
 	 * Date after which they can be no lesson
 	 */
 	private Date dateEnd;
+	
+	/**
+	 * Map containing all the block in which we can put a lesson
+	 */
+	private Map<Date, Boolean> timeMap;	
+	
+	/**
+	 * Map containing the hours of all the lessons
+	 */
+	private Map<Lesson, Date[]> lessonDates = new HashMap<Lesson, Date[]>();
+
+	/**
+	 * List of the generic schedules of the lessons
+	 */
+	private final int[][] SCHEDULE = {
+		{ 8, 30, 510 },
+		{ 10, 15, 615 },
+		{ 13, 00, 780 },
+		{ 14, 45, 885 },
+		{ 16, 30, 990 }
+	};
 	
 	/**
 	 * The constructor.
@@ -103,8 +126,40 @@ public class TimeTableBuilder {
 	 */
 	public Date getDateEnd() {
 		return this.dateEnd;
+	}	
+	
+	/**
+	 * Update the map of the lessons
+	 * @param newTimeMap Map containing all the block in which we can put a lesson
+	 */
+	public void setTimeMap(Map<Date, Boolean> newTimeMap) {
+		this.timeMap = newTimeMap;
 	}
 	
+	/**
+	 * Returns the map of the lessons
+	 * @return timeMap Map containing all the block in which we can put a lesson
+	 */
+	public Map<Date, Boolean> getTimeMap() {
+		return this.timeMap;
+	}
+	
+	/**
+	 * Update the map of the hours of the lessons
+	 * @param newLessonDates Map containing all the hours of the lessons
+	 */
+	public void setLessonDates(Map<Lesson, Date[]> newLessonDates) {
+		this.lessonDates = newLessonDates;
+	}
+	
+	/**
+	 * Returns the map of the hours of the lessons
+	 * @return lessonDates Map containing all the hours of the lessons
+	 */
+	public Map<Lesson, Date[]> getLessonDates() {
+		return this.lessonDates;
+	}
+		
 	/**
 	 * Parse a XML representation into a Map of lessons
 	 */
@@ -136,10 +191,94 @@ public class TimeTableBuilder {
 	public void create() {
 		int safeguard = 0;
 		Map<Integer, Lesson> placedLessons = new HashMap<Integer, Lesson>();
+		this.initTime();
 		while(this.getLessons().size() > 0 && safeguard < 100) {
 			safeguard++;
 			Map<Integer, Lesson> feasableLessons = this.getFeasableLessons(placedLessons);
+			for(Map.Entry<Integer, Lesson> entry : feasableLessons.entrySet()) {
+				Boolean success = this.placeLesson(entry.getValue());
+				if(success) {
+					placedLessons.put(entry.getKey(), entry.getValue());
+					this.getLessons().remove(entry.getKey());
+				}
+				else {
+					System.out.println("The TimeTable creation failed");
+				}
+			}	
 		}
+		for(Entry<Lesson, Date[]> entry : this.getLessonDates().entrySet()) {
+			System.out.println(entry.getKey().getTitle() + " : " + entry.getValue()[0].toString() + " / " + entry.getValue()[1].toString());
+		}
+	}
+	
+	/**
+	 * Split the time between the beginning date and the ending date into blocks in which we can put lessons
+	 * @return timeMap (Map containing all the block in which we can put a lesson)
+	 */
+	public void initTime() {
+		Map<Date, Boolean> timeMap = new LinkedHashMap<Date, Boolean>();
+		Date actualDate = new Date(this.getDateBegin().getTime());
+		while(actualDate.before(this.getDateEnd())) {
+			actualDate = this.getCloserSchedule(actualDate);
+			timeMap.put(new Date(actualDate.getTime()), true);
+			actualDate = new Date(actualDate.getTime() + Lesson.LENGTH*60*1000);
+		}
+		this.setTimeMap(timeMap);
+	}
+	
+	/**
+	 * Try to find a place for a lesson
+	 * @param lesson Lesson to place
+	 * @return success Has the lesson successfully been placed ?
+	 */
+	public Boolean placeLesson(Lesson lesson) {
+		int length = Math.round(lesson.getLength()/Lesson.LENGTH);
+		ArrayList<Date> freeBlocks = new ArrayList<Date>();
+		Boolean success = false;
+		for(Entry<Date, Boolean> entry : this.getTimeMap().entrySet()) {
+			if(entry.getValue().booleanValue()) {
+				freeBlocks.add(entry.getKey());
+				if(freeBlocks.size() == length) {
+					Date[] dates = {
+						freeBlocks.get(0),
+						new Date(freeBlocks.get(freeBlocks.size()-1).getTime() + Lesson.LENGTH*60*1000)
+					};
+					this.getLessonDates().put(lesson, dates);
+					success = true;
+					for (Date date : freeBlocks) {
+						this.getTimeMap().put(date, false);
+					}
+				}
+			}
+			else {
+				freeBlocks.clear();
+			}
+		}
+		return success;
+	}
+	
+	/**
+	 * Modify a date to stick with the schedule layout 
+	 * (for example will transform 8:25 into 8:30)
+	 * @param date (date we want to edit)
+	 * @return date (date modified)
+	 */
+	@SuppressWarnings("deprecation")
+	public Date getCloserSchedule(Date date) {
+		int minutes = date.getHours()*60 + date.getMinutes();
+		if(minutes > 990) {
+			date = new Date(date.getTime() + (86400-minutes*60)*1000);
+			minutes = 0;
+		}
+		for(int i=0; i<SCHEDULE.length; i++) {
+			if(SCHEDULE[i][2] >= minutes) {
+				date.setHours(SCHEDULE[i][0]);
+				date.setMinutes(SCHEDULE[i][1]);
+				date.setSeconds(0);
+				break;
+			}
+		}
+		return date;
 	}
 	
 	/**

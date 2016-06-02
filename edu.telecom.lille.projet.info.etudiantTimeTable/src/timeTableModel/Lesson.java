@@ -40,6 +40,11 @@ public class Lesson {
 	private ArrayList<Lesson> prerequisites = new ArrayList<Lesson>();
 	
 	/**
+	 * Generic length of a lesson is minutes
+	 */
+	public final static int LENGTH = 90;
+	
+	/**
 	 * The constructor.
 	 * @param length
 	 * @param effective
