@@ -10,10 +10,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import timeTableModel.Room;
+import timeTableModel.TimeTable;
+import timeTableModel.TimeTableBuilder;
 
 public class TimeTableControllerTest {
 
@@ -57,9 +62,9 @@ public class TimeTableControllerTest {
 
 	@After
 	public void tearDown() throws Exception {
-		this.controller.tTDB.saveDB();
+		//this.controller.tTDB.saveDB();
 	}
-	
+	/*
 	@Test
 	public void testLoadDBRoom() {
 		assertEquals(this.controller.tTDB.getRoomsSize(), 3);
@@ -195,8 +200,43 @@ public class TimeTableControllerTest {
 	}
 	
 	@Test
-	public void testSaveDB() {
-		
-	}
+	public void testSaveDBWithConflict() throws ParseException {
+		if(!this.controller.tTDB.isSQL()) {
+			// 1) We create a booking
+			System.out.println("1) We create a booking");
+			int timeTableId = 1;
+			TimeTable timeTable = this.controller.tTDB.getTimeTables().get(timeTableId);
+			Room room = this.controller.tTDB.getRooms().get(1);
+			int bookId = this.controller.tTDB.getBookingsMaxId(timeTableId);
+			Date dateBegin = this.dateformat.parse("08/04/2016 16:00:00");
+			Date dateEnd = this.dateformat.parse("08/04/2016 18:00:00");
+			timeTable.addBooking(bookId, "user", dateBegin, dateEnd, room);
+			this.controller.tTDB.setModification("add", "book", timeTableId, false);
+			
+			// 2) We save the XML database
+			System.out.println("2) We save the XML database");
+			this.controller.tTDB.saveXML();
+			
+			// 3) We remove the last booking
+			System.out.println("3) We remove the last booking");
+			timeTable.removeBook(bookId);
+			
+			// 4) We add a new booking not compatible with the one we juste removed
+			System.out.println("4) We add a new booking not compatible with the one we juste removed");
+			timeTable.addBooking(bookId, "MS", dateBegin, dateEnd, room);
+			this.controller.tTDB.setModification("add", "book", timeTableId, false);
+			
+			// 5) We try to save the XML database
+			System.out.println("5) We try to save the XML database");
+			this.controller.saveDB();
+		}
+	}*/
 	
+	@Test
+	public void testBuildTimeTable() throws ParseException {
+		Date dateBegin = this.dateformat.parse("02/05/2016 08:30:00");
+		Date dateEnd = this.dateformat.parse("06/05/2016 18:00:00");
+		TimeTableBuilder builder = new TimeTableBuilder("lessonsDB.xml", dateBegin, dateEnd);
+		builder.create();
+	}
 }

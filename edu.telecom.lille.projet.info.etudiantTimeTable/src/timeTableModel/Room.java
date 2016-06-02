@@ -109,27 +109,16 @@ public class Room {
 	
 	/**
 	 * Returns a SQL request to create this Room in the database
-	 * @return roomSQL
+	 * @return success (has the room successfully been created)
 	 */
-	public String toSQL() {
-		return Room.createSQL(this.getId(), this.getCapacity());
-	}
-	
-	/**
-	 * Return a SQL request to create a new Room in the database
-	 * @param roomId
-	 * @param capacity
-	 * @return roomSQL
-	 */
-	public static String createSQL(int roomId, int capacity) {
-		String roomSQL = "INSERT INTO Room (RoomId, Capacity) VALUES(" + roomId + "," + capacity + ");";
-		return roomSQL;
+	public Boolean toSQL() {
+		return Room.objects.create(this.getId(), this.getCapacity());
 	}
 	
 	/**
 	 * Generate a MAP of Room objects from a XML representation
 	 * @param roomListXML
-	 * @return rooms
+	 * @param rooms
 	 */
 	public static void parseXML(Element roomListXML, Map<Integer, Room> rooms) {
 		List<Element> roomsXML = roomListXML.getChildren("Room");

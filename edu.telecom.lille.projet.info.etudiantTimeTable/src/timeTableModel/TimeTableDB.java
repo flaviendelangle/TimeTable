@@ -12,15 +12,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
@@ -39,7 +42,7 @@ public class TimeTableDB {
 	/**
 	 * Activate or not the SQL storage
 	 */
-	private static final Boolean SQLactivated = true;		
+	private static final Boolean SQLactivated = false;		
 
 	/**
 	 * File where the program save all the data if the SQL mode is not activated.
@@ -52,15 +55,25 @@ public class TimeTableDB {
 	private static String fileSQL = "timeTableDB.db";
 
 	/**
+	 * Date at which the XML database has been loaded for the last time
+	 */
+	private long modificationDate;
+	
+	/**
 	 * List of all the timetables
 	 */
-	private Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();;
+	private Map<Integer, TimeTable> timeTables = new HashMap<Integer, TimeTable>();
 
 	/**
 	 * List of all the rooms
 	 */
 	private Map<Integer, Room> rooms = new HashMap<Integer, Room>();;
 
+	/**
+	 * Description of the last modification in order to check for conflict
+	 */
+	private String[] modification = { "", "", "" };
+	
 	/**
 	 * The constructor.
 	 */
@@ -78,7 +91,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Sets a value to attribute file. 
+	 * Update the name of the XML database.
 	 * @param newFile 
 	 */
 	public void setFileXML(String newFileXML) {
@@ -86,7 +99,7 @@ public class TimeTableDB {
 	}
 	
 	/**
-	 * Returns file.
+	 * Returns the name of the XML database.
 	 * @return file 
 	 */
 	public String getFileXML() {
@@ -94,7 +107,7 @@ public class TimeTableDB {
 	}
 
 	/**
-	 * Sets a value to attribute file. 
+	 * Update the name of the SQLite database. 
 	 * @param newFile 
 	 */
 	public void setFileSQL(String newFileSQL) {
@@ -102,16 +115,30 @@ public class TimeTableDB {
 	}
 	
 	/**
-	 * Returns file.
+	 * Returns the name of the SQLite database.
 	 * @return file 
 	 */
 	public String getFileSQL() {
 		return TimeTableDB.fileSQL;
 	}
+	
+	/**
+	 * Update the date of the last modification of the XML database
+	 */
+	public void setModificationDate(long newModificationDate) {
+		this.modificationDate = newModificationDate;
+	}
 
 	/**
-	 * Returns timeTables.
-	 * @return timeTables 
+	 * Returns the date of the last modification of the XML database
+	 */
+	public long getModificationDate() {
+		return this.modificationDate;
+	}
+
+	/**
+	 * Returns timeTablesGroup.
+	 * @return timeTablesGroup 
 	 */
 	public Map<Integer, TimeTable> getTimeTables() {
 		return this.timeTables;
@@ -139,7 +166,35 @@ public class TimeTableDB {
 	 */
 	public void setRooms(Map<Integer, Room> newRooms) {
 		this.rooms = newRooms;
-	}	
+	}
+	
+	/**
+	 * Returns modification.
+	 * @return modification
+	 */
+	public String[] getModification() {
+		return this.modification;
+	}
+	
+	/**
+	 * Update the type of the last modification
+	 * @param newModification
+	 */
+	public void setModification(String newType, String newValue, int parentId) {
+		this.setModification(newType, newValue, parentId, false);
+		if(!this.isSQL()) {
+			this.saveDB();
+		}
+	}
+	
+	/**
+	 * Update the type of the last modification (no saving of the database)
+	 */
+	public void setModification(String newType, String newValue, int parentId, Boolean isTest) {
+		this.modification[0] = newType;
+		this.modification[1] = newValue;		
+		this.modification[2] = String.valueOf(parentId);
+	}
 	
 	/**
 	 * Save the current state of the database into a XML file
@@ -149,7 +204,14 @@ public class TimeTableDB {
 			return this.closeSQL();
 		}
 		else {
-			return this.saveXML(this.timeTables, this.rooms);
+			if(!this.modifiedXML() || !this.conflictualXMLDB()) {
+				Boolean success = this.saveXML();
+				this.setModificationDate(this.getModificationDate());
+				return success;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 
@@ -161,30 +223,71 @@ public class TimeTableDB {
 			return this.initSQL();
 		}
 		else {
-			return this.loadXML(this.timeTables, this.rooms);
+			Boolean success = this.loadXML(this.getTimeTables(), this.getRooms());
+			this.setModificationDate(this.getLastModificationXML());
+			return success;
 		}
 	}
-
+	
+	/**
+	 * Return the timestamp of the last modification of the XML database
+	 * @return modificationDate
+	 */
+	public long getLastModificationXML() {
+		File file = new File(this.getFileXML());
+		return file.lastModified();		
+	}
+	
+	/**
+	 * Check if the XML database has been modified since the last time it has beed loaded
+	 * @return modified
+	 */
+	public Boolean modifiedXML() {
+		return (this.getModificationDate() != this.getLastModificationXML());
+	}
+	
+	/**
+	 * Check if the XML database and the live objects are
+	 */
+	public Boolean conflictualXMLDB() {
+		Boolean conflict;
+		modification = this.getModification();
+		try {
+			Element fileXML = this.getXML();
+			Element liveXML = this.getLiveXML();
+			if(modification[0] != "add") {
+				conflict = false;
+			}
+			else if(modification[1] == "timetable") {
+				// Check if the ID is free
+				conflict = true;				
+			}
+			else if(modification[1] == "room") {
+				// Check if the Room is free (if not check if the capacity is the same
+				conflict = true;
+			}
+			else if(modification[1] == "book") {
+				int timeTableId = Integer.parseInt(modification[2]);
+				int bookId = this.getBookingsMaxId(timeTableId);
+				conflict = TimeTableBuilder.checkBookingConflict(fileXML, timeTableId, bookId, this.getTimeTables());
+			}
+			else {
+				conflict = false;
+			}
+		} 
+		catch (Exception e) {
+			conflict = false;
+			e.printStackTrace();
+		}
+		return conflict;
+	}
+	
 	/**
 	 * Save the actual state of the program into a XML database
-	 * @param timeTables
-	 * @param rooms
 	 * @return success
 	 */
-	public Boolean saveXML(Map<Integer, TimeTable> timeTables, Map<Integer, Room> rooms) {
-		Element rootXML = new Element("TimeTablesDB");
-		Element roomsXML = new Element("Rooms");
-		Element timeTablesXML = new Element("TimeTables");
-		
-		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
-			roomsXML.addContent(entry.getValue().toXML());
-		}
-		for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
-			timeTablesXML.addContent(entry.getValue().toXML());
-		}
-
-		rootXML.addContent(roomsXML);
-		rootXML.addContent(timeTablesXML);
+	public Boolean saveXML() {
+		Element rootXML = this.getLiveXML();
 		org.jdom2.Document document = new Document(rootXML);
 		Boolean success;
 		
@@ -201,33 +304,65 @@ public class TimeTableDB {
 	}
 	
 	/**
-	 * Load the data of a XML database into the program
+	 * Load the data of the XML database into the program
 	 * @param timeTables
 	 * @param rooms
 	 * @return success
 	 */
 	public Boolean loadXML(Map<Integer, TimeTable> timeTables, Map<Integer, Room> rooms) {
-		org.jdom2.Document document = null;
-		Element rootXML;
-		SAXBuilder sxb = new SAXBuilder();
-		Boolean success = false;;
+		Element rootXML = null;
+		Boolean success;
 		try {
-			document = sxb.build(new File(this.getFileXML()));
+			rootXML = this.getXML();
+			success = true;
 		}
-		catch(Exception e) {
+		catch (Exception e) {
+			e.printStackTrace();
+			success = false;
 		}
-		if(document != null) {
-			rootXML = document.getRootElement();
-			try {
-				success = true;
-				Room.parseXML(rootXML.getChild("Rooms"), rooms);
-				TimeTable.parseXML(rootXML.getChild("TimeTables"), timeTables, rooms);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
+		if(rootXML != null) {
+			Room.parseXML(rootXML.getChild("Rooms"), rooms);
+			TimeTable.parseXML(rootXML.getChild("TimeTables"), timeTables, rooms);			
 		}
 		return success;		
+	}
+	
+	/**
+	 * Return the XML representation of the live date
+	 */
+	public Element getLiveXML() {
+		Element rootXML = new Element("TimeTablesDB");
+		Element roomsXML = new Element("Rooms");
+		Element timeTablesXML = new Element("TimeTables");
+		
+		for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
+			roomsXML.addContent(entry.getValue().toXML());
+		}
+		for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+			timeTablesXML.addContent(entry.getValue().toXML());
+		}
+
+		rootXML.addContent(roomsXML);
+		rootXML.addContent(timeTablesXML);
+		
+		return rootXML;
+	}
+	
+	/**
+	 * Return the content of the XML database
+	 * @throws IOException 
+	 * @throws JDOMException 
+	 * @return rootXML
+	 */
+	public Element getXML() throws JDOMException, IOException {
+		org.jdom2.Document document = null;
+		Element rootXML = null;
+		SAXBuilder sxb = new SAXBuilder();
+		document = sxb.build(new File(this.getFileXML()));
+		if(document != null) {
+			rootXML = document.getRootElement();
+		}
+		return rootXML;
 	}
 	
 	/**
@@ -291,17 +426,17 @@ public class TimeTableDB {
 			}
 			catch(Exception e) {
 			}
-			success &= this.sql("CREATE TABLE TimeTable (GroupId INT);");
+			success &= this.sql("CREATE TABLE TimeTable (GroupId INT, Login VARCHAR(255));");
 			success &= this.sql("CREATE TABLE Room (RoomId INT, Capacity INT);");
 			success &= this.sql("CREATE TABLE Book (BookingId INT UNSIGNED , Login VARCHAR(255),"
 				+ " DateBegin DATETIME, DateEnd DATETIME, RoomId INT UNSIGNED , TimeTableId INT UNSIGNED,"
 				+ " CONSTRAINT fk_RoomId FOREIGN KEY (TimeTableId) REFERENCES TimeTable(GroupId),"
 				+ " CONSTRAINT fk_RoomId FOREIGN KEY (RoomId) REFERENCES Room(RoomId));");
 			for(Map.Entry<Integer, Room> entry : this.rooms.entrySet()) {
-				success &= this.sql(entry.getValue().toSQL());
+				success &= entry.getValue().toSQL();
 			}		
 			for(Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
-				success &= this.sql(entry.getValue().toSQL());
+				success &= entry.getValue().toSQL();
 			}
 		}
 		return success;
@@ -359,6 +494,20 @@ public class TimeTableDB {
 		}
 		else {
 			return this.getTimeTables().containsKey(timeTableId);
+		}
+	}
+
+	public Boolean containsTimeTable(String login) {
+		if(this.isSQL()) {
+			return TimeTable.objects.exist(login, false);
+		}
+		else {
+			Boolean success = false;
+			for (Map.Entry<Integer, TimeTable> entry : this.getTimeTables().entrySet()) {
+				success |= (entry.getValue().getType() == "teacher")
+						&& (entry.getValue().getLogin() == login);
+			}
+			return success;
 		}
 	}
 
@@ -528,10 +677,10 @@ public class TimeTableDB {
 			return timeTableIdList.toArray(new String[timeTableIdList.size()]);
 		}
 		else {
-			Set<Integer> timeTablesIdSet = this.timeTables.keySet();
+			Set<Integer> timeTablesIdSet = this.getTimeTables().keySet();
 			String[] timeTablesId = new String[timeTablesIdSet.size()];
 			int i = 0;
-			for (Map.Entry<Integer, TimeTable> entry : this.timeTables.entrySet()) {
+			for (Entry<Integer, TimeTable> entry : this.getTimeTables().entrySet()) {
 				timeTablesId[i] = String.valueOf(entry.getKey());
 				i++;
 			}
@@ -561,7 +710,7 @@ public class TimeTableDB {
 			return bookIdList.toArray(new String[bookIdList.size()]);			
 		}
 		else {
-			TimeTable timeTableResult = timeTables.get(timeTableId);
+			TimeTable timeTableResult = this.getTimeTables().get(timeTableId);
 			if(timeTableResult == null) {
 				return new String[0];
 			}
@@ -579,8 +728,8 @@ public class TimeTableDB {
 	 * @throws SQLException 
 	 */
 	public Boolean addRoom(Integer roomId, Integer capacity) {
+		Boolean success;
 		if(this.isSQL()) {
-			Boolean success;
 			if(!this.containsRoom(roomId)) {
 				success = Room.objects.create(roomId, capacity);
 			}
@@ -596,8 +745,12 @@ public class TimeTableDB {
 				this.rooms.put(roomId, newRoom);
 			}
 			
-			return !exist;
+			success = !exist;
 		}
+		if(success) {
+			this.setModification("add", "room", 0);
+		}
+		return success;
 	}
 
 	/**
@@ -608,16 +761,21 @@ public class TimeTableDB {
 	 * @return Boolean ( true if the room is correctly removed, false if the room does not exist)
 	 */
 	public Boolean removeRoom(int roomId) {
+		Boolean success;
 		if(this.isSQL()) {
-			return Room.objects.delete(roomId);
+			success = Room.objects.delete(roomId);
 		}
 		else {
 			Boolean result = this.containsRoom(roomId);
 			if(result){
 				this.rooms.remove(roomId);
 			}
-			return result;
+			success = result;
 		}
+		if(success) {
+			this.setModification("remove", "room", 0);
+		}
+		return success;
 	}
 
 	/**
@@ -641,7 +799,7 @@ public class TimeTableDB {
 			return result;
 		}
 		else {
-			TimeTable timeTableResult = timeTables.get(timeTableId);
+			TimeTable timeTableResult = this.getTimeTables().get(timeTableId);
 			if(timeTableResult == null) {
 				return -1;
 			}
@@ -656,51 +814,53 @@ public class TimeTableDB {
 	 * @param timeTableId 
 	 * @return 
 	 */
-	public Boolean addTimeTable(int timeTableId) {
+	public Boolean addTimeTable(int groupId) {
+		Boolean success;
 		if(this.isSQL()) {
-			Boolean success;
-			if(!this.containsTimeTable(timeTableId)) {
-				success = TimeTable.objects.create(timeTableId);
+			if(!this.containsTimeTable(groupId)) {
+				success = TimeTable.objects.create(groupId, "");
 			}
 			else {
 				success = false;
 			}
-			return success;			
 		}
 		else {
-			Boolean success;
-			if(this.containsTimeTable(timeTableId)) {
+			if(this.containsTimeTable(groupId)) {
 				success = false;
 			}
 			else {
 				success = true;
-				this.getTimeTables().put(timeTableId, new TimeTableGroup(timeTableId));
+				this.getTimeTables().put(groupId, new TimeTable(groupId));
 			}
-			return success;
 		}
+		if(success) {
+			this.setModification("add", "timetable", 0);
+		}
+		return success;
 	}
-	public Boolean addTimeTable(String teacherLogin) {
+	public Boolean addTimeTable(int timeTableId, String teacherLogin) {
+		Boolean success;
 		if(this.isSQL()) {
-			Boolean success;
-			if(!this.containsTimeTable(teacherLogin)) {
-				success = TimeTable.objects.create(teacherLogin);
+			if(!this.containsTimeTable(teacherLogin) && !this.containsTimeTable(timeTableId)) {
+				success = TimeTable.objects.create(timeTableId, teacherLogin);
 			}
 			else {
 				success = false;
 			}
-			return success;			
 		}
 		else {
-			Boolean success;
-			if(this.containsTimeTable(teacherLogin)) {
+			if(this.containsTimeTable(teacherLogin) || this.containsTimeTable(timeTableId)) {
 				success = false;
 			}
 			else {
 				success = true;
-				this.getTimeTables().put(teacherLogin, new TimeTableTeacher(teacherLogin));
+				this.getTimeTables().put(timeTableId, new TimeTable(timeTableId, teacherLogin));
 			}
-			return success;
 		}
+		if(success) {
+			this.setModification("add", "timetable", 0);
+		}
+		return success;
 	}
 
 
@@ -710,16 +870,21 @@ public class TimeTableDB {
 	 * @return 
 	 */
 	public Boolean removeTimeTable(int timeTableId) {
+		Boolean success;
 		if(this.isSQL()) {
-			return TimeTable.objects.delete(timeTableId);
+			success = TimeTable.objects.delete(timeTableId);
 		}
 		else {
-			Boolean result = this.timeTables.containsKey(timeTableId);
+			Boolean result = this.containsTimeTable(timeTableId);
 			if(result){
 				this.timeTables.remove(timeTableId);
 			}
-			return result;		
+			success = result;		
 		}
+		if(success) {
+			this.setModification("remove", "timetable", timeTableId);
+		}
+		return success;
 	}
 
 	/**
@@ -736,8 +901,8 @@ public class TimeTableDB {
 	 * @return success
 	 */
 	public Boolean addBooking(int timeTableId, int bookingId, String login, Date dateBegin, Date dateEnd, int roomId) {
+		Boolean success;
 		if(this.isSQL()) {
-			Boolean success;
 			if(!this.containsBook(timeTableId, bookingId)) {
 				success = Book.objects.create(timeTableId, bookingId, login, dateBegin, dateEnd, roomId);
 			}
@@ -750,12 +915,19 @@ public class TimeTableDB {
 			if(this.containsRoom(roomId) && this.containsTimeTable(timeTableId)) {
 				TimeTable timetable = this.getTimeTables().get(timeTableId); 
 				Room room = this.getRooms().get(roomId);
-				return timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
+				success = TimeTableBuilder.isBookingPossible(timeTableId, bookingId, login, dateBegin, dateEnd, room, this.getTimeTables());
+				if(success) {
+					timetable.addBooking(bookingId, login, dateBegin, dateEnd, room);
+				}
 			}
 			else {
-				return false;
+				success = false;
 			}
 		}
+		if(success) {
+			this.setModification("add", "book", timeTableId);
+		}
+		return success;
 	}
 
 	/**
@@ -792,19 +964,22 @@ public class TimeTableDB {
 	 * @return success
 	 */
 	public Boolean removeBook(int timeTableId, int bookId) {
+		Boolean success;
 		if(this.isSQL()) {
-			return Book.objects.delete(timeTableId, bookId);
+			success = Book.objects.delete(timeTableId, bookId);
 		}
 		else {
-			Boolean success;
 			if(this.containsTimeTable(timeTableId)) {
 				success = this.getTimeTables().get(timeTableId).removeBook(bookId);
 			}
 			else {
 				success = false;
 			}
-			return success;
 		}
+		if(success) {
+			this.setModification("remove", "book", timeTableId);
+		}
+		return success;
 	}
 
 	/**
@@ -838,6 +1013,39 @@ public class TimeTableDB {
 				bookingsMaxId = -1;
 			}
 			return bookingsMaxId;
+		}
+	}
+
+	/**
+	 * Return the maximum identifier of all the timetables.
+	 * @return timeTablesMaxId
+	 */
+	public int getTimeTableMaxId() {
+		if(this.isSQL()) {
+			int timeTablesMaxId = -1;
+			ResultSet timeTables = TimeTable.objects.all();
+			try {
+				while(timeTables.next()) {
+					int temp = timeTables.getInt("BookingId");
+					if(timeTablesMaxId < temp) {
+						timeTablesMaxId = temp;
+					}
+				}
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return timeTablesMaxId;
+		}
+		else {
+			int timeTablesMaxId;
+			if(this.getTimeTables().isEmpty()) {
+				timeTablesMaxId = -1;
+			}
+			else {
+				timeTablesMaxId = Collections.max(this.getTimeTables().keySet());
+			}
+			return timeTablesMaxId;
 		}
 	}
 

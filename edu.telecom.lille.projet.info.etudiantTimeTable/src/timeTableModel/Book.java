@@ -52,6 +52,11 @@ public class Book {
 	
 	/**
 	 * The constructor.
+	 * @param id (id of the new book)
+	 * @param room (room of the new book)
+	 * @param teacherLogin (login of the teacher of the new book)
+	 * @param dateBegin (beginning date of the new book)
+	 * @param dateEnd (ending date of the new book)
 	 */
 	public Book(int id, Room room, String teacherLogin, Date dateBegin, Date dateEnd) {
 		this.setId(id);
@@ -62,48 +67,48 @@ public class Book {
 	}
 
 	/**
-	 * Returns the identifier of this booking.
-	 * @return id 
+	 * Returns the identifier of this book.
+	 * @return id (id of this book)
 	 */
 	public int getId() {
 		return this.id;
 	}
 
 	/**
-	 * Update the identifier of this booking
-	 * @param newId 
+	 * Update the identifier of this book
+	 * @param newId (id of this book)
 	 */
 	public void setId(int newId) {
 		this.id = newId;
 	}
 
 	/**
-	 * Returns the room in which this booking will take place.
-	 * @return rooms 
+	 * Returns the room in which this book will take place.
+	 * @return room (room in which this book will take place)
 	 */
 	public Room getRoom() {
 		return this.room;
 	}
 
 	/**
-	 * Update the room in which this booking will take place.
-	 * @param newRooms 
+	 * Update the room in which this book will take place.
+	 * @param newRoom (room in which this book will take place)
 	 */
 	public void setRoom(Room newRoom) {
 		this.room = newRoom;
 	}
 
 	/**
-	 * Returns the login of the teacher who has made this booking.
-	 * @return teacherLogin 
+	 * Returns the login of the teacher who has made this book.
+	 * @return teacherLogin (login of the teacher of this book)
 	 */
 	public String getTeacherLogin() {
 		return this.teacherLogin;
 	}
 
 	/**
-	 * Update the login of the teacher who has made this booking
-	 * @param newTeacherLogin 
+	 * Update the login of the teacher who has made this book.
+	 * @param newTeacherLogin (login of the teacher of this book)
 	 */
 	public void setTeacherLogin(String newTeacherLogin) {
 		this.teacherLogin = newTeacherLogin;
@@ -111,7 +116,7 @@ public class Book {
 
 	/**
 	 * Returns the date at which this booking will begin.
-	 * @return dateBegin 
+	 * @return dateBegin  (beginning date of this book)
 	 */
 	public Date getDateBegin() {
 		return this.dateBegin;
@@ -119,7 +124,7 @@ public class Book {
 
 	/**
 	 * Update the date at which this booking will begin. 
-	 * @param newDateBegin 
+	 * @param newDateBegin (beginning date of this book)
 	 */
 	public void setDateBegin(Date newDateBegin) {
 		this.dateBegin = newDateBegin;
@@ -127,7 +132,7 @@ public class Book {
 
 	/**
 	 * Returns the date at which this booking will end.
-	 * @return dateEnd 
+	 * @return dateEnd (ending date of this book)
 	 */
 	public Date getDateEnd() {
 		return this.dateEnd;
@@ -135,15 +140,15 @@ public class Book {
 
 	/**
 	 * Update the date at which this booking will end. 
-	 * @param newDateEnd 
+	 * @param newDateEnd (ending date of this book)
 	 */
 	public void setDateEnd(Date newDateEnd) {
 		this.dateEnd = newDateEnd;
 	}	
 
 	/**
-	 * Return the string representation of this booking.
-	 * @return toString
+	 * Return the string representation of this book.
+	 * @return toString (stringified version of this book)
 	 */
 	public String toString() {
 		String toString = "Booking n°" + this.getId() + "in room " + this.room.getId();
@@ -151,8 +156,8 @@ public class Book {
 	}
 
 	/**
-	 * Return the XML representation of this booking
-	 * @return roomXML 
+	 * Return the XML representation of this book.
+	 * @return roomXML  (XML representation of this book)
 	 */
 	public Element toXML() {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -181,32 +186,18 @@ public class Book {
 
 	/**
 	 * Returns a SQL request to create this Book in the database
-	 * @return roomSQL
+	 * @return success (has the book successfully been created)
 	 */
-	public String toSQL(int timeTableId) {
-		String bookSQL = Book.createSQL(this.getId(), this.getTeacherLogin(), this.getRoom().getId(), 
-										this.getDateBegin(), this.getDateEnd(), timeTableId);
-		return bookSQL;
-	}
-
-	/**
-	 * Returns a SQL request to create this Book in the database
-	 * @return roomSQL
-	 */
-	public static String createSQL(int bookId, String teacherLogin, int roomId, Date dateBeginStr, Date dateEndStr, int timeTableId) {
-		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String dateBegin = dateformat.format(dateBeginStr);
-		String dateEnd = dateformat.format(dateEndStr);
-		String bookSQL = "INSERT INTO Book (BookingId, Login, DateBegin, DateEnd, RoomId, TimeTableId)"
-			+ " VALUES(" + bookId + ",\"" + teacherLogin + "\",\"" + dateBegin + "\",\"" + dateEnd
-			+ "\"," + roomId + "," + timeTableId + ");";
-		return bookSQL;
+	public Boolean toSQL(int timeTableId) {
+		return Book.objects.create(timeTableId, this.getId(), this.getTeacherLogin(), 
+				this.getDateBegin(), this.getDateEnd(), this.getRoom().getId());
 	}
 
 	/**
 	 * Generate a MAP of Book objects from a XML representation
-	 * @param bookListXML
-	 * @return rooms
+	 * @param bookListXML (XML representation of the books)
+	 * @param books (Map in which we want to store the books)
+	 * @param rooms (Map in which we have stored the rooms)
 	 */
 	public static void parseXML(Element bookListXML, Map<Integer, Book>books, Map<Integer, Room>rooms) {
 		SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
