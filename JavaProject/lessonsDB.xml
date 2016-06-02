@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LessonDB>
+  <Lesson>
+    <Id>1</Id>
+    <Title>Java Course n°1</Title>
+    <Login>DPollet</Login>
+    <Length>90</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>2</Id>
+    <Title>Java Course n°2</Title>
+    <Login>DPollet</Login>
+    <Length>180</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+      <Prerequisite>1</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>3</Id>
+    <Title>Java Course n°3</Title>
+    <Login>DPollet</Login>
+    <Length>90</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+      <Prerequisite>2</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>4</Id>
+    <Title>Internship presentation</Title>
+    <Login>FWay</Login>
+    <Length>90</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>5</Id>
+    <Title>VHDL Course n°1</Title>
+    <Login>MArdouin</Login>
+    <Length>180</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>6</Id>
+    <Title>VHDL Course n°2</Title>
+    <Login>MArdouin</Login>
+    <Length>180</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+      <Prerequisite>5</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>7</Id>
+    <Title>VHDL Course n°3</Title>
+    <Login>MArdouin</Login>
+    <Length>180</Length>
+    <Effective>120</Effective>
+    <Prerequisites>
+      <Prerequisite>6</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>8</Id>
+    <Title>Java TD n°1</Title>
+    <Login>AAA</Login>
+    <Length>180</Length>
+    <Effective>30</Effective>
+    <Prerequisites>
+      <Prerequisite>3</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>9</Id>
+    <Title>Java TD n°2</Title>
+    <Login>BBB</Login>
+    <Length>180</Length>
+    <Effective>30</Effective>
+    <Prerequisites>
+      <Prerequisite>3</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+  <Lesson>
+    <Id>10</Id>
+    <Title>Java TD n°3</Title>
+    <Login>CCC</Login>
+    <Length>180</Length>
+    <Effective>30</Effective>
+    <Prerequisites>
+      <Prerequisite>3</Prerequisite>
+    </Prerequisites>
+  </Lesson>
+
+</LessonDB>

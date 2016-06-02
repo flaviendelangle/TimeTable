@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeTablesDB>
+  <Rooms>
+    <Room>
+      <RoomId>1</RoomId>
+      <Capacity>50</Capacity>
+    </Room>
+    <Room>
+      <RoomId>2</RoomId>
+      <Capacity>100</Capacity>
+    </Room>
+    <Room>
+      <RoomId>3</RoomId>
+      <Capacity>150</Capacity>
+    </Room>
+  </Rooms>
+  <TimeTables>
+    <TimeTable>
+      <GroupId>1</GroupId>
+      <Books>
+        <Book>
+          <RoomId>1</RoomId>
+          <BookingId>0</BookingId>
+          <DateBegin>06/04/2016 08:00:00</DateBegin>
+          <DateEnd>06/04/2016 10:00:00</DateEnd>
+          <Login>GS</Login>
+        </Book>
+        <Book>
+          <RoomId>1</RoomId>
+          <BookingId>1</BookingId>
+          <DateBegin>06/04/2016 13:00:00</DateBegin>
+          <DateEnd>06/04/2016 17:00:00</DateEnd>
+          <Login>MF</Login>
+        </Book>
+        <Book>
+          <RoomId>2</RoomId>
+          <BookingId>2</BookingId>
+          <DateBegin>07/04/2016 08:15:00</DateBegin>
+          <DateEnd>07/04/2016 11:45:00</DateEnd>
+          <Login>GS</Login>
+        </Book>
+        <Book>
+          <RoomId>3</RoomId>
+          <BookingId>3</BookingId>
+          <DateBegin>08/04/2016 16:00:00</DateBegin>
+          <DateEnd>08/04/2016 18:00:00</DateEnd>
+          <Login>MF</Login>
+        </Book>
+      </Books>
+    </TimeTable>
+  </TimeTables>
+</TimeTablesDB>

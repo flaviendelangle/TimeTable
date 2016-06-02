@@ -43,7 +43,7 @@ public class TimeTableDB {
 	/**
 	 * Activate or not the SQL storage
 	 */
-	private static final Boolean SQLactivated = false;		
+	private static final Boolean SQLactivated = true;		
 
 	/**
 	 * File where the program save all the data if the SQL mode is not activated.
